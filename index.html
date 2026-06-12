@@ -2587,7 +2587,8 @@
   // ── INITIALIZE SUPABASE CLIENT ──
   const SUPABASE_URL = 'https://nmdiwayyluvaaxrupkij.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_FMuWXJOJ5lSGGUs6GnQ7HQ_taqKQyyU';
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const { createClient } = window.supabase;
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ── CART STATE ──
   let cart = [];
