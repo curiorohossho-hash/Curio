@@ -2446,7 +2446,11 @@
           </select>
         </div>
         <div id="advanceNote" class="cod-note" style="display:none;border-left-color:var(--amber);background:rgba(196,135,58,0.08);">
-          ✦ For deliveries outside Dhaka, please send a small advance delivery charge via Bkash/Nagad to <strong>01615-396654</strong> after placing your order. We'll confirm the amount over WhatsApp before shipping.
+          ✦ For deliveries outside Dhaka, please send a small advance delivery charge via <strong>Bkash: 01974488640</strong> or <strong>Nagad: 01615396654</strong> after placing your order. Enter the transaction ID below to confirm payment.
+        </div>
+        <div class="form-group" id="transactionGroup" style="display:none;">
+          <label class="form-label">Bkash / Nagad Transaction ID *</label>
+          <input class="form-input" type="text" id="transactionId" placeholder="Enter your transaction ID">
         </div>
         <div class="form-group">
           <label class="form-label">Is this a gift?</label>
@@ -2465,7 +2469,7 @@
       <div class="order-success" id="orderSuccess">
         <div class="tick">🎉</div>
         <h3>Order Received!</h3>
-        <p>Thank you! We'll WhatsApp you within a few hours to confirm your order and arrange delivery. Get ready to unbox something special.</p>
+        <p>Thank you! We'll contact you soon to confirm your order and arrange delivery. Get ready to unbox something special.</p>
       </div>
     </div>
   </div>
@@ -2721,15 +2725,23 @@
   function toggleDeliveryNote() {
     const area = document.getElementById('deliveryArea').value;
     const note = document.getElementById('advanceNote');
-    note.style.display = area.includes('Outside Dhaka') ? 'block' : 'none';
+    const transactionGroup = document.getElementById('transactionGroup');
+    const isOutside = area.includes('Outside Dhaka');
+
+    note.style.display = isOutside ? 'block' : 'none';
+    transactionGroup.style.display = isOutside ? 'block' : 'none';
+    if (!isOutside) {
+      document.getElementById('transactionId').value = '';
+    }
   }
 
-  // ── CORE TRANSACTION GATEWAY (SUPABASE + WHATSAPP) ──
+  // ── CORE TRANSACTION GATEWAY (SUPABASE) ──
   async function submitOrder() {
     const name = document.getElementById('custName').value.trim();
     const phone = document.getElementById('custPhone').value.trim();
     const address = document.getElementById('custAddress').value.trim();
     const area = document.getElementById('deliveryArea').value;
+    const transactionId = document.getElementById('transactionId').value.trim();
 
     if (!name || !phone || !address) {
       alert('Please fill in your name, phone, and address.');
@@ -2737,6 +2749,10 @@
     }
     if (!area) {
       alert('Please select your delivery area (Inside or Outside Dhaka).');
+      return;
+    }
+    if (area.includes('Outside Dhaka') && !transactionId) {
+      alert('Please provide your Bkash or Nagad transaction ID for outside Dhaka delivery.');
       return;
     }
 
@@ -2755,7 +2771,8 @@
       fulfilment_mode: mode,
       is_gift: gift,
       customer_notes: notes || null,
-      cart_data: cart, 
+      cart_data: cart,
+      payment_transaction_id: transactionId || null,
       total_price: total
     };
 
@@ -2787,19 +2804,12 @@
       cart = [];
       updateCartUI();
 
-      // Trigger user redirection channel
-      setTimeout(() => {
-        window.open(`https://wa.me/8801615396654?text=${msg}`, '_blank');
-      }, 800);
+      // No mandatory WhatsApp redirect after order placement.
+      // Customers may still contact us via WhatsApp manually if they want.
 
     } catch (err) {
       console.error('Critical transactional network error logged:', err);
-      alert('We had trouble saving your record automatically. Tap OK to complete your checkout summary directly over WhatsApp!');
-      
-      // Secondary fallback routine execution 
-      const fallbackSummary = cart.map(i => i.name).join(', ') || tier;
-      const fallbackMsg = encodeURIComponent(`🛍 Backup Order Request\nName: ${name}\nPhone: ${phone}\nCart: ${fallbackSummary}`);
-      window.open(`https://wa.me/8801615396654?text=${fallbackMsg}`, '_blank');
+      alert('We had trouble saving your order automatically. Please contact us on WhatsApp if you want to confirm your order manually.');
     }
   }
 
