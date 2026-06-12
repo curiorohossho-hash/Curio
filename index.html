@@ -2587,14 +2587,18 @@
   // ── INITIALIZE SUPABASE CLIENT ──
   const SUPABASE_URL = 'https://nmdiwayyluvaaxrupkij.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_FMuWXJOJ5lSGGUs6GnQ7HQ_taqKQyyU';
-  let supabase;
+  let _supabaseClient;
 
-  // Wait for Supabase library to load
-  if (window.supabase && window.supabase.createClient) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  } else {
-    console.warn('Supabase library not loaded, initializing without database support');
-    supabase = null;
+  try {
+    if (typeof supabase !== 'undefined' && supabase.createClient) {
+      _supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } else {
+      console.warn('Supabase global object not available. Initializing empty fallback context.');
+      _supabaseClient = null;
+    }
+  } catch (e) {
+    console.error('Failed to initialize Supabase connection:', e);
+    _supabaseClient = null;
   }
 
   // ── CART STATE ──
@@ -2615,7 +2619,7 @@
     const count = cart.length;
     document.getElementById('cartCount').textContent = count;
 
-    // Drawer
+    // Drawer Elements
     const drawerEl = document.getElementById('drawerItems');
     const footerEl = document.getElementById('drawerFooter');
 
@@ -2638,7 +2642,7 @@
       footerEl.style.display = 'block';
     }
 
-    // Order section cart
+    // Order Section Elements
     const listEl = document.getElementById('cartItemsList');
     const emptyMsg = document.getElementById('cartEmptyMsg');
     const totalRow = document.getElementById('cartTotalRow');
@@ -2671,7 +2675,7 @@
     document.getElementById('cartOverlay').classList.remove('open');
   }
 
-  // ── BOX FILTER ──
+  // ── FILTER SYSTEM ──
   function filterBoxes(mode, btn) {
     document.querySelectorAll('.mode-toggle .mode-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -2680,7 +2684,6 @@
     });
   }
 
-  // ── CATEGORY FILTER ──
   function filterCat(cat, btn) {
     document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -2689,7 +2692,7 @@
     });
   }
 
-  // ── NOTIFY ME ──
+  // ── NOTIFY ME MODAL SYSTEM ──
   let currentNotifyProduct = '';
   function notifyMe(product) {
     currentNotifyProduct = product;
@@ -2710,17 +2713,18 @@
     document.getElementById('notifySuccess').style.display = 'block';
     setTimeout(() => {
       window.open(`https://wa.me/8801615396654?text=${msg}`, '_blank');
-    }, 500);
+      closeNotify();
+    }, 600);
   }
 
-  // ── DELIVERY AREA NOTE ──
+  // ── SHIPPING UTILITIES ──
   function toggleDeliveryNote() {
     const area = document.getElementById('deliveryArea').value;
     const note = document.getElementById('advanceNote');
-    note.style.display = area.startsWith('Outside Dhaka') ? 'block' : 'none';
+    note.style.display = area.includes('Outside Dhaka') ? 'block' : 'none';
   }
 
-  // ── ORDER SUBMISSION ──
+  // ── CORE TRANSACTION GATEWAY (SUPABASE + WHATSAPP) ──
   async function submitOrder() {
     const name = document.getElementById('custName').value.trim();
     const phone = document.getElementById('custPhone').value.trim();
@@ -2739,10 +2743,9 @@
     const tier = document.getElementById('boxTier').value || 'Not specified';
     const mode = document.getElementById('boxMode').value || 'Not specified';
     const gift = document.getElementById('isGift').value;
-    const notes = document.getElementById('custNotes').value;
+    const notes = document.getElementById('custNotes').value.trim();
     const total = cart.reduce((s, i) => s + i.price, 0);
 
-    // 1. Prepare data payload for Supabase
     const orderPayload = {
       customer_name: name,
       phone_number: phone,
@@ -2751,49 +2754,56 @@
       order_type: tier,
       fulfilment_mode: mode,
       is_gift: gift,
-      customer_notes: notes,
-      cart_data: cart, // Save full structural array info
+      customer_notes: notes || null,
+      cart_data: cart, 
       total_price: total
     };
 
     try {
-      // 2. Insert record into PostgreSQL database (if Supabase is available)
-      if (supabase) {
-        const { data, error } = await supabase
+      // Post to Supabase if connection established
+      if (_supabaseClient) {
+        const { error } = await _supabaseClient
           .from('orders')
           .insert([orderPayload]);
 
         if (error) throw error;
+      } else {
+        console.warn('Order dispatch skipped cloud migration log; executing standard client redirect protocol.');
       }
 
-      // 3. Keep your original operational UI update flow
       const cartSummary = cart.length > 0
-        ? cart.map(i => i.name + ' ৳' + i.price).join(', ')
+        ? cart.map(i => `${i.emoji} ${i.name} (৳${i.price})`).join(', ')
         : tier;
 
       const msg = encodeURIComponent(
-        `🛍 New CURIO Order Record Saved!\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nDelivery Area: ${area}\nOrder Type: ${tier}\nMode: ${mode}\nCart: ${cartSummary}\nTotal: ৳${total}\nGift: ${gift}\nNotes: ${notes || 'None'}`
+        `🛍 New CURIO Order!\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nArea: ${area}\nType: ${tier}\nMode: ${mode}\nCart: ${cartSummary}\nTotal: ৳${total}\nGift Wrapping: ${gift}\nNotes: ${notes || 'None'}`
       );
 
+      // Mutate UI view
       document.getElementById('orderForm').style.display = 'none';
       document.getElementById('orderSuccess').style.display = 'block';
 
-      // Clear cart memory safely on database success
+      // Flawlessly drain active cart cache
       cart = [];
       updateCartUI();
 
-      // 4. Fire the WhatsApp redirection line
+      // Trigger user redirection channel
       setTimeout(() => {
         window.open(`https://wa.me/8801615396654?text=${msg}`, '_blank');
       }, 800);
 
     } catch (err) {
-      console.error('Error saving your order:', err.message);
-      alert('Something went wrong processing your order locally. Please checkout via WhatsApp button directly!');
+      console.error('Critical transactional network error logged:', err);
+      alert('We had trouble saving your record automatically. Tap OK to complete your checkout summary directly over WhatsApp!');
+      
+      // Secondary fallback routine execution 
+      const fallbackSummary = cart.map(i => i.name).join(', ') || tier;
+      const fallbackMsg = encodeURIComponent(`🛍 Backup Order Request\nName: ${name}\nPhone: ${phone}\nCart: ${fallbackSummary}`);
+      window.open(`https://wa.me/8801615396654?text=${fallbackMsg}`, '_blank');
     }
   }
 
-  // ── CONTACT SUBMISSION ──
+  // ── INCOMING MESSAGING SYSTEMS ──
   function submitContact() {
     const name = document.getElementById('cName').value.trim();
     const contact = document.getElementById('cContact').value.trim();
@@ -2803,7 +2813,7 @@
     if (!message) { alert('Please write a message.'); return; }
 
     const msg = encodeURIComponent(
-      `📩 Message from CURIO site\n\nName: ${name || 'N/A'}\nContact: ${contact || 'N/A'}\nSubject: ${subject}\n\n${message}`
+      `📩 Message from CURIO site\n\nName: ${name || 'N/A'}\nContact: ${contact || 'N/A'}\nSubject: ${subject}\n\nMessage: ${message}`
     );
 
     document.getElementById('contactForm').style.display = 'none';
@@ -2814,7 +2824,7 @@
     }, 600);
   }
 
-  // ── NAV SCROLL EFFECT ──
+  // ── SCROLL DECORATIONS ──
   window.addEventListener('scroll', () => {
     const nav = document.querySelector('nav');
     if (window.scrollY > 60) {
@@ -2824,7 +2834,7 @@
     }
   });
 
-  // ── INIT ──
+  // ── INITIAL RUN ──
   updateCartUI();
 </script>
 </body>
