@@ -2696,6 +2696,128 @@
     });
   }
 
+  async function fetchAndRenderCatalog() {
+    if (!_supabaseClient) {
+      console.warn('Supabase client not initialized. Cannot pull live products.');
+      return;
+    }
+
+    try {
+      const { data: fetchedProducts, error } = await _supabaseClient
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      const boxesGrid = document.getElementById('boxesGrid');
+      const signatureGrid = document.querySelector('#signature .products-grid');
+      const indivGrid = document.getElementById('indivGrid');
+
+      if (boxesGrid) boxesGrid.innerHTML = '';
+      if (signatureGrid) signatureGrid.innerHTML = '';
+      if (indivGrid) indivGrid.innerHTML = '';
+
+      fetchedProducts.forEach(product => {
+        const hasImage = product.image_url && product.image_url.trim() !== '';
+        const imageMediaHtml = hasImage
+          ? `<img src="${product.image_url.trim()}" alt="${product.name}" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0; z-index:1;">`
+          : `<div class="product-img-emoji" style="position:relative; z-index:2;">${product.emoji || '🎁'}</div>`;
+
+        const discountBadge = product.old_price ? `<span class="price-badge">30% OFF</span>` : '';
+        const oldPriceHtml = product.old_price ? `<span class="price-old">৳${product.old_price}</span>` : '';
+        const isItemAvailable = product.in_stock === true || product.in_stock === 'true' || product.in_stock == 1;
+
+        let actionButtonHtml = '';
+        if (isItemAvailable) {
+          if (product.category === 'Mystery Boxes' || product.category === 'Signature') {
+            actionButtonHtml = `<button class="btn-add" onclick="addToCart('${product.name}', ${product.price}, '${product.emoji || '🎁'}')">Add to Cart</button>`;
+          } else {
+            const fullIndivName = product.variant_name ? `${product.name} (${product.variant_name})` : product.name;
+            actionButtonHtml = `<button class="btn-add-indiv" onclick="addToCart('${fullIndivName}', ${product.price}, '${product.emoji || '💍'}')">Add to Cart</button>`;
+          }
+        } else {
+          actionButtonHtml = `<button class="btn-notify" style="width:100%; cursor:pointer;" onclick="notifyMe('${product.name}')">Out of Stock — Notify Me</button>`;
+        }
+
+        const tagsHtml = (product.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+        const priceNew = `<span class="price-new">৳${product.price}</span>`;
+
+        if (product.category === 'Mystery Boxes') {
+          if (boxesGrid) {
+            boxesGrid.innerHTML += `
+              <div class="product-card" data-mode="${product.type || 'all'}">
+                <div class="product-img" style="position:relative;">
+                  <div class="product-img-bg" style="background: linear-gradient(135deg, #EDD5B0, #D4A574); opacity: 0.35;"></div>
+                  ${imageMediaHtml}
+                </div>
+                <div class="product-tier">${product.name} · ${product.type || 'Package'}</div>
+                <div class="product-info">
+                  <div class="product-name">${product.name}</div>
+                  <p class="product-desc">${product.description || ''}</p>
+                  <div class="product-pricing">${priceNew}${oldPriceHtml}${discountBadge}</div>
+                  <div class="product-tags">${tagsHtml}</div>
+                  <div class="product-actions" style="display:flex; gap:0.6rem; width:100%;">${actionButtonHtml}</div>
+                </div>
+              </div>`;
+          }
+        } else if (product.category === 'Signature') {
+          if (signatureGrid) {
+            signatureGrid.innerHTML += `
+              <div class="product-card" data-mode="${product.type || 'all'}">
+                <div class="product-img" style="position:relative;">
+                  <div class="product-img-bg" style="background: linear-gradient(135deg, #95772955, #C4873A88); opacity:0.35;"></div>
+                  ${imageMediaHtml}
+                </div>
+                <div class="product-tier">${product.name} · ${product.type || 'Collection'}</div>
+                <div class="product-info">
+                  <div class="product-name">${product.name}</div>
+                  <p class="product-desc">${product.description || ''}</p>
+                  <div class="product-pricing">${priceNew}${oldPriceHtml}</div>
+                  <div class="product-tags">${tagsHtml}</div>
+                  <div class="product-actions" style="width:100%;">${actionButtonHtml}</div>
+                </div>
+              </div>`;
+          }
+        } else {
+          const variantLabel = product.variant_name ? `<div class="indiv-variant">${product.variant_name}</div>` : '';
+          const discountLabel = product.old_price ? `<span class="indiv-discount">30% OFF</span>` : '';
+          const oldIndivPrice = product.old_price ? `<span class="indiv-price-old">৳${product.old_price}</span>` : '';
+
+          if (indivGrid) {
+            indivGrid.innerHTML += `
+              <div class="indiv-card" data-cat="${product.category}">
+                <div class="indiv-img" style="position:relative;">
+                  <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B0,#C4873A44); opacity:0.5;"></div>
+                  ${imageMediaHtml}
+                </div>
+                <div class="indiv-cat-badge">${product.category}</div>
+                <div class="indiv-info">
+                  ${variantLabel}
+                  <div class="indiv-name">${product.name}</div>
+                  <p class="indiv-tagline">${product.tagline || ''}</p>
+                  <div class="indiv-pricing">${priceNew}${oldIndivPrice}${discountLabel}</div>
+                  <div class="product-actions" style="width:100%;">${actionButtonHtml}</div>
+                </div>
+              </div>`;
+          }
+        }
+      });
+
+      const activeBoxFilter = document.querySelector('.mode-toggle .mode-btn.active');
+      if (activeBoxFilter) activeBoxFilter.click();
+      const activeCatFilter = document.querySelector('.cat-tab.active');
+      if (activeCatFilter) activeCatFilter.click();
+
+    } catch (err) {
+      console.error('Error rendering production dynamic storefront context:', err);
+    }
+  }
+
+  window.addEventListener('load', () => {
+    fetchAndRenderCatalog();
+  });
+
   // ── NOTIFY ME MODAL SYSTEM ──
   let currentNotifyProduct = '';
   function notifyMe(product) {
