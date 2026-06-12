@@ -1355,6 +1355,11 @@
 <!-- PRODUCTS -->
 <section id="products">
 
+  <!-- SEARCH BAR -->
+  <div style="display:flex; justify-content:center; margin-bottom:2.5rem; padding:0 1.5rem;">
+    <input class="form-input" id="productSearch" type="text" placeholder="🔍 Search products by name..." style="max-width:500px; width:100%;" oninput="searchProducts(this.value)">
+  </div>
+
   <!-- ── MYSTERY BOXES ── -->
   <div class="products-header">
     <div>
@@ -2709,6 +2714,35 @@
     btn.classList.add('active');
     document.querySelectorAll('.indiv-card').forEach(card => {
       card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+    });
+  }
+
+  function searchProducts(query) {
+    const searchTerm = query.toLowerCase().trim();
+    
+    // Search mystery boxes
+    document.querySelectorAll('#boxesGrid .product-card').forEach(card => {
+      const name = card.querySelector('.product-name')?.textContent.toLowerCase() || '';
+      const desc = card.querySelector('.product-desc')?.textContent.toLowerCase() || '';
+      const matches = name.includes(searchTerm) || desc.includes(searchTerm) || searchTerm === '';
+      card.style.display = matches ? '' : 'none';
+    });
+
+    // Search signature boxes
+    document.querySelectorAll('#signature .product-card').forEach(card => {
+      const name = card.querySelector('.product-name')?.textContent.toLowerCase() || '';
+      const desc = card.querySelector('.product-desc')?.textContent.toLowerCase() || '';
+      const matches = name.includes(searchTerm) || desc.includes(searchTerm) || searchTerm === '';
+      card.style.display = matches ? '' : 'none';
+    });
+
+    // Search individual items
+    document.querySelectorAll('.indiv-card').forEach(card => {
+      const name = card.querySelector('.indiv-name')?.textContent.toLowerCase() || '';
+      const variant = card.querySelector('.indiv-variant')?.textContent.toLowerCase() || '';
+      const tagline = card.querySelector('.indiv-tagline')?.textContent.toLowerCase() || '';
+      const matches = name.includes(searchTerm) || variant.includes(searchTerm) || tagline.includes(searchTerm) || searchTerm === '';
+      card.style.display = matches ? '' : 'none';
     });
   }
 
