@@ -1,0 +1,2783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CURIO রহস্য — Mystery Boxes for the Curious</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5EFE0;
+    --warm-white: #FAF7F0;
+    --ink: #1A1208;
+    --brown: #3D2B1A;
+    --amber: #C4873A;
+    --dusty-rose: #C4877A;
+    --sage: #7A9E7E;
+    --muted-gold: #B8A062;
+    --paper: #EDE5D0;
+    --shadow: rgba(26,18,8,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--warm-white);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.2rem 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(250,247,240,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(196,135,58,0.2);
+    transition: all 0.3s ease;
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.05em;
+    color: var(--brown);
+    text-decoration: none;
+  }
+  .nav-logo span {
+    font-style: italic;
+    color: var(--amber);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--brown);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  .nav-links a:hover { opacity: 1; }
+
+  .nav-cart {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brown);
+    cursor: pointer;
+    background: none;
+    border: 1px solid var(--amber);
+    padding: 0.5rem 1rem;
+    transition: all 0.2s;
+  }
+  .nav-cart:hover { background: var(--amber); color: white; }
+  .cart-count {
+    background: var(--dusty-rose);
+    color: white;
+    border-radius: 50%;
+    width: 18px; height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+  }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 4rem 6rem 6rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 5vw, 5.5rem);
+    line-height: 1.05;
+    color: var(--brown);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--amber);
+  }
+
+  .hero-bengali {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--muted-gold);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+
+  .hero-desc {
+    font-size: 0.78rem;
+    line-height: 1.9;
+    color: var(--brown);
+    opacity: 0.65;
+    max-width: 420px;
+    margin-bottom: 3rem;
+    animation: fadeUp 0.8s 0.7s forwards;
+    opacity: 0;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.9s forwards;
+  }
+
+  .btn-primary {
+    background: var(--brown);
+    color: var(--cream);
+    padding: 0.9rem 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.25s;
+  }
+  .btn-primary:hover { background: var(--amber); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--brown);
+    padding: 0.9rem 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: 1px solid var(--brown);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.25s;
+  }
+  .btn-outline:hover { background: var(--brown); color: white; }
+
+  .hero-right {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero-visual {
+    position: relative;
+    width: 420px;
+    height: 520px;
+    opacity: 0;
+    animation: fadeIn 1.2s 0.5s forwards;
+  }
+
+  .box-card {
+    position: absolute;
+    background: var(--paper);
+    border: 1px solid rgba(196,135,58,0.25);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.4s ease;
+  }
+  .box-card:hover { transform: translateY(-8px) rotate(-1deg) !important; }
+
+  .box-card-1 {
+    width: 200px; height: 240px;
+    top: 40px; left: 20px;
+    transform: rotate(-4deg);
+    z-index: 3;
+    background: #EDE0C8;
+    box-shadow: 6px 8px 24px var(--shadow);
+  }
+  .box-card-2 {
+    width: 180px; height: 210px;
+    top: 80px; left: 170px;
+    transform: rotate(3deg);
+    z-index: 2;
+    background: #E8D5C0;
+    box-shadow: 4px 6px 18px var(--shadow);
+  }
+  .box-card-3 {
+    width: 160px; height: 190px;
+    top: 240px; left: 100px;
+    transform: rotate(-1.5deg);
+    z-index: 4;
+    background: #F0E8D4;
+    box-shadow: 8px 10px 28px var(--shadow);
+  }
+
+  .box-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+  .box-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--brown);
+    opacity: 0.6;
+    text-align: center;
+    padding: 0 1rem;
+  }
+  .box-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--amber);
+    margin-top: 0.5rem;
+  }
+
+  .hero-bg-circle {
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,135,58,0.08) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  /* ── TICKER ── */
+  .ticker {
+    background: var(--brown);
+    color: var(--cream);
+    padding: 0.75rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-inner {
+    display: inline-block;
+    animation: ticker 22s linear infinite;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .ticker-inner span { margin: 0 3rem; }
+  .ticker-sep { color: var(--amber); }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── PROMO BANNER ── */
+  .promo-banner {
+    background: rgba(122,158,126,0.1);
+    border-top: 1px solid rgba(122,158,126,0.3);
+    border-bottom: 1px solid rgba(122,158,126,0.3);
+    padding: 1rem 6rem;
+    text-align: center;
+  }
+  .promo-banner-inner {
+    font-size: 0.7rem;
+    line-height: 1.8;
+    color: var(--brown);
+    letter-spacing: 0.02em;
+  }
+  .promo-banner-inner strong { color: var(--sage); }
+
+  /* ── HOW IT WORKS ── */
+  #how {
+    padding: 7rem 6rem;
+    background: var(--cream);
+    position: relative;
+  }
+
+  .section-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3.2rem);
+    color: var(--brown);
+    line-height: 1.2;
+    margin-bottom: 4rem;
+    max-width: 500px;
+  }
+  .section-title em { font-style: italic; color: var(--amber); }
+
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+  }
+
+  .how-step {
+    position: relative;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(196,135,58,0.3);
+  }
+
+  .step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    color: var(--amber);
+    opacity: 0.2;
+    line-height: 1;
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+
+  .step-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 0.75rem;
+  }
+
+  .step-desc {
+    font-size: 0.72rem;
+    line-height: 1.9;
+    color: var(--brown);
+    opacity: 0.65;
+  }
+
+  /* ── PRODUCTS ── */
+  #products,
+  #signature,
+  #individual {
+    padding: 7rem 6rem;
+    background: var(--warm-white);
+  }
+
+  .products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 4rem;
+  }
+
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--brown);
+  }
+  .mode-btn {
+    padding: 0.55rem 1.2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--brown);
+    transition: all 0.2s;
+  }
+  .mode-btn.active { background: var(--brown); color: var(--cream); }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  /* Product card */
+  .product-card {
+    background: var(--paper);
+    border: 1px solid rgba(196,135,58,0.15);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px var(--shadow);
+  }
+
+  .product-img {
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .product-img-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.35;
+  }
+  .product-img-emoji { position: relative; z-index: 1; }
+
+  .product-tier {
+    position: absolute;
+    top: 1rem; left: 1rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    background: var(--brown);
+    color: var(--cream);
+    padding: 0.3rem 0.7rem;
+    z-index: 2;
+  }
+
+  .product-info { padding: 1.5rem; }
+
+  .product-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 0.4rem;
+  }
+
+  .product-desc {
+    font-size: 0.68rem;
+    line-height: 1.8;
+    color: var(--brown);
+    opacity: 0.6;
+    margin-bottom: 1.2rem;
+  }
+
+  .product-pricing {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 1.2rem;
+  }
+  .price-new {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--amber);
+  }
+  .price-old {
+    font-size: 0.75rem;
+    text-decoration: line-through;
+    opacity: 0.4;
+    color: var(--brown);
+  }
+  .price-badge {
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--dusty-rose);
+    color: white;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .product-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+  }
+  .tag {
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid rgba(196,135,58,0.4);
+    color: var(--brown);
+    padding: 0.2rem 0.6rem;
+    opacity: 0.7;
+  }
+
+  .product-actions {
+    display: flex;
+    gap: 0.6rem;
+  }
+  .btn-add {
+    flex: 1;
+    background: var(--brown);
+    color: var(--cream);
+    padding: 0.75rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-add:hover { background: var(--amber); }
+  .btn-wa {
+    background: transparent;
+    color: var(--brown);
+    padding: 0.75rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid rgba(196,135,58,0.4);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .btn-wa:hover { border-color: var(--sage); color: var(--sage); }
+
+  /* ── INDIVIDUAL PRODUCTS ── */
+  .indiv-header {
+    margin-top: 6rem;
+    padding-top: 4rem;
+    border-top: 1px solid rgba(196,135,58,0.2);
+  }
+  .cat-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+  .cat-tab {
+    padding: 0.6rem 1.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border: 1px solid rgba(196,135,58,0.35);
+    border-right: none;
+    background: transparent;
+    color: var(--brown);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .cat-tab:last-child { border-right: 1px solid rgba(196,135,58,0.35); }
+  .cat-tab:hover { background: rgba(196,135,58,0.08); }
+  .cat-tab.active { background: var(--brown); color: var(--cream); border-color: var(--brown); }
+
+  .indiv-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+  .indiv-card {
+    background: var(--paper);
+    border: 1px solid rgba(196,135,58,0.15);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .indiv-card:hover { transform: translateY(-5px); box-shadow: 0 16px 32px var(--shadow); }
+  .indiv-img {
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .indiv-img-bg { position: absolute; inset: 0; opacity: 0.5; }
+  .indiv-emoji { position: relative; z-index: 1; font-size: 2.8rem; }
+  .indiv-cat-badge {
+    position: absolute;
+    top: 0.8rem; left: 0.8rem;
+    font-size: 0.5rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: var(--amber);
+    color: white;
+    padding: 0.25rem 0.6rem;
+    z-index: 2;
+  }
+  .indiv-info { padding: 1rem 1.1rem 1.2rem; }
+  .indiv-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 0.35rem;
+  }
+  .indiv-price { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--amber); margin-bottom: 0.8rem; }
+  .indiv-price.tba {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brown);
+    opacity: 0.45;
+  }
+  .indiv-pricing {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+  }
+  .indiv-price-new { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--amber); }
+  .indiv-price-old { font-size: 0.65rem; text-decoration: line-through; opacity: 0.4; color: var(--brown); }
+  .indiv-discount {
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--dusty-rose);
+    color: white;
+    padding: 0.15rem 0.4rem;
+  }
+  .indiv-variant {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber);
+    opacity: 0.7;
+    margin-bottom: 0.2rem;
+  }
+  .btn-add-indiv {
+    width: 100%;
+    background: var(--brown);
+    color: var(--cream);
+    padding: 0.6rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-add-indiv:hover { background: var(--amber); }
+  .indiv-tagline {
+    font-size: 0.62rem;
+    line-height: 1.6;
+    color: var(--brown);
+    opacity: 0.55;
+    margin-bottom: 0.7rem;
+    font-style: italic;
+  }
+
+  .btn-notify {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--amber);
+    color: var(--brown);
+    padding: 0.55rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-notify:hover { background: var(--amber); color: white; }
+
+  /* Notify Modal */
+  .notify-overlay {
+    position: fixed; inset: 0;
+    background: rgba(26,18,8,0.5);
+    z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .notify-overlay.open { opacity: 1; pointer-events: all; }
+  .notify-modal {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background: var(--warm-white);
+    z-index: 301;
+    padding: 2.5rem;
+    width: 380px;
+    max-width: 90vw;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    border: 1px solid rgba(196,135,58,0.25);
+  }
+  .notify-modal.open { opacity: 1; pointer-events: all; transform: translate(-50%, -50%) scale(1); }
+  .notify-close { position: absolute; top: 1rem; right: 1.2rem; font-size: 1rem; cursor: pointer; opacity: 0.4; background: none; border: none; color: var(--brown); }
+  .notify-close:hover { opacity: 1; }
+  .notify-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--brown); margin-bottom: 0.5rem; }
+  .notify-desc { font-size: 0.72rem; line-height: 1.8; color: var(--brown); opacity: 0.6; }
+
+  /* ── FULFILMENT MODES ── */
+  #modes {
+    padding: 7rem 6rem;
+    background: var(--brown);
+    color: var(--cream);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+
+  .modes-left .section-label { color: var(--amber); }
+  .modes-left .section-title { color: var(--cream); }
+  .modes-left .section-title em { color: var(--amber); }
+
+  .modes-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .mode-card {
+    background: rgba(250,247,240,0.06);
+    border: 1px solid rgba(196,135,58,0.3);
+    padding: 2rem;
+    position: relative;
+    transition: background 0.25s;
+  }
+  .mode-card:hover { background: rgba(196,135,58,0.1); }
+
+  .mode-card-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 0.6rem;
+  }
+  .mode-card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+  }
+  .mode-card-desc {
+    font-size: 0.7rem;
+    line-height: 1.85;
+    opacity: 0.65;
+  }
+
+  .mode-icon {
+    position: absolute;
+    top: 1.5rem; right: 1.5rem;
+    font-size: 1.8rem;
+    opacity: 0.5;
+  }
+
+  /* ── ORDER FORM ── */
+  #order {
+    padding: 7rem 6rem;
+    background: var(--cream);
+  }
+
+  #order .section-title { margin-bottom: 3rem; }
+
+  .order-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 5rem;
+  }
+
+  .order-summary h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 1.5rem;
+  }
+
+  .cart-items { margin-bottom: 2rem; }
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(196,135,58,0.2);
+    font-size: 0.72rem;
+  }
+  .cart-item-name { color: var(--brown); }
+  .cart-item-price { color: var(--amber); font-family: 'Playfair Display', serif; }
+  .cart-item-remove {
+    background: none;
+    border: none;
+    color: var(--dusty-rose);
+    cursor: pointer;
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+  .cart-item-remove:hover { opacity: 1; }
+  .cart-empty {
+    font-size: 0.72rem;
+    color: var(--brown);
+    opacity: 0.5;
+    font-style: italic;
+    padding: 1.5rem 0;
+  }
+
+  .cart-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 1.2rem 0;
+    border-top: 2px solid var(--amber);
+    margin-bottom: 1rem;
+  }
+  .cart-total-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brown);
+  }
+  .cart-total-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--amber);
+  }
+
+  .cod-note {
+    background: rgba(122,158,126,0.1);
+    border-left: 3px solid var(--sage);
+    padding: 1rem 1.2rem;
+    font-size: 0.68rem;
+    line-height: 1.7;
+    color: var(--brown);
+    opacity: 0.8;
+    margin-top: 1rem;
+  }
+
+  /* Form */
+  .order-form { display: flex; flex-direction: column; gap: 1.4rem; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .form-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--brown);
+    opacity: 0.7;
+  }
+
+  .form-input, .form-select, .form-textarea {
+    background: var(--warm-white);
+    border: 1px solid rgba(196,135,58,0.3);
+    padding: 0.85rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--brown);
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--amber);
+  }
+  .form-textarea { resize: vertical; min-height: 100px; }
+  .form-select { cursor: pointer; }
+
+  .submit-btn {
+    background: var(--brown);
+    color: var(--cream);
+    padding: 1.1rem 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.25s;
+    margin-top: 0.5rem;
+  }
+  .submit-btn:hover { background: var(--amber); }
+
+  .order-success {
+    display: none;
+    background: rgba(122,158,126,0.12);
+    border: 1px solid var(--sage);
+    padding: 2rem;
+    text-align: center;
+  }
+  .order-success .tick { font-size: 2.5rem; margin-bottom: 1rem; }
+  .order-success h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 0.5rem;
+  }
+  .order-success p {
+    font-size: 0.72rem;
+    color: var(--brown);
+    opacity: 0.65;
+    line-height: 1.8;
+  }
+
+  /* ── CONTACT ── */
+  #contact {
+    padding: 7rem 6rem;
+    background: var(--warm-white);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: start;
+  }
+
+  .contact-info { }
+  .contact-info .section-title { margin-bottom: 2rem; }
+
+  .contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .contact-detail {
+    display: flex;
+    gap: 1.2rem;
+    align-items: flex-start;
+  }
+  .contact-detail-icon {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(196,135,58,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .contact-detail-text h4 {
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 0.3rem;
+  }
+  .contact-detail-text p {
+    font-size: 0.72rem;
+    color: var(--brown);
+    opacity: 0.7;
+    line-height: 1.7;
+  }
+  .contact-detail-text a {
+    color: var(--brown);
+    opacity: 0.7;
+    text-decoration: none;
+  }
+  .contact-detail-text a:hover { opacity: 1; color: var(--amber); }
+
+  .social-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+  }
+  .social-link {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(196,135,58,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--brown);
+    transition: all 0.2s;
+  }
+  .social-link:hover { background: var(--brown); color: var(--cream); border-color: var(--brown); }
+
+  .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+
+  .form-success {
+    display: none;
+    background: rgba(122,158,126,0.1);
+    border: 1px solid var(--sage);
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .form-success p {
+    font-size: 0.75rem;
+    color: var(--brown);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 4rem 6rem 2.5rem;
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 4rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(250,247,240,0.1);
+    margin-bottom: 2rem;
+  }
+
+  .footer-brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--cream);
+  }
+  .footer-brand-name em { font-style: italic; color: var(--amber); }
+
+  .footer-brand-desc {
+    font-size: 0.68rem;
+    line-height: 1.9;
+    opacity: 0.45;
+    max-width: 280px;
+  }
+
+  .footer-col h4 {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 1.2rem;
+  }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+  .footer-links a {
+    font-size: 0.68rem;
+    color: var(--cream);
+    text-decoration: none;
+    opacity: 0.45;
+    transition: opacity 0.2s;
+  }
+  .footer-links a:hover { opacity: 1; }
+
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    opacity: 0.35;
+  }
+
+  /* ── CART DRAWER ── */
+  .cart-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26,18,8,0.5);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .cart-overlay.open { opacity: 1; pointer-events: all; }
+
+  .cart-drawer {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: 400px;
+    background: var(--warm-white);
+    z-index: 201;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    padding: 2rem;
+    overflow-y: auto;
+  }
+  .cart-drawer.open { transform: translateX(0); }
+
+  .cart-drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(196,135,58,0.2);
+  }
+  .cart-drawer-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--brown);
+  }
+  .cart-close {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: var(--brown);
+    opacity: 0.5;
+  }
+  .cart-close:hover { opacity: 1; }
+
+  .drawer-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(196,135,58,0.12);
+    align-items: center;
+  }
+  .drawer-item-emoji { font-size: 2rem; }
+  .drawer-item-info { flex: 1; }
+  .drawer-item-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 0.2rem;
+  }
+  .drawer-item-price {
+    font-size: 0.7rem;
+    color: var(--amber);
+  }
+  .drawer-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.4;
+    font-size: 1rem;
+    color: var(--dusty-rose);
+  }
+  .drawer-remove:hover { opacity: 1; }
+  .drawer-empty {
+    text-align: center;
+    padding: 3rem 0;
+    font-size: 0.75rem;
+    color: var(--brown);
+    opacity: 0.4;
+  }
+  .drawer-empty-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+
+  .drawer-footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(196,135,58,0.2);
+  }
+  .drawer-total {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    font-size: 0.72rem;
+    color: var(--brown);
+  }
+  .drawer-total-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--amber);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    #hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-left { padding: 6rem 1.5rem 3rem; }
+    .hero-right { display: none; }
+    #how, #products, #signature, #individual, #order, #contact { padding: 4rem 1.5rem; }
+    .how-grid { grid-template-columns: 1fr; }
+    .products-grid { grid-template-columns: 1fr; }
+    .products-header { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+    #modes { grid-template-columns: 1fr; padding: 4rem 1.5rem; gap: 3rem; }
+    .order-layout { grid-template-columns: 1fr; gap: 3rem; }
+    #contact { grid-template-columns: 1fr; padding: 4rem 1.5rem; gap: 3rem; }
+    .indiv-grid { grid-template-columns: repeat(2, 1fr); }
+    .promo-banner { padding: 1rem 1.5rem; }
+    .cat-tabs { gap: 0.4rem; }
+    .cat-tab { border-right: 1px solid rgba(196,135,58,0.35); }
+    .form-row { grid-template-columns: 1fr; }
+    footer { padding: 3rem 1.5rem 2rem; }
+    .footer-top { grid-template-columns: 1fr; gap: 2rem; }
+    .cart-drawer { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CART OVERLAY -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-drawer-header">
+    <div class="cart-drawer-title">Your Mystery Haul</div>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div id="drawerItems"></div>
+  <div class="drawer-footer" id="drawerFooter" style="display:none">
+    <div class="drawer-total">
+      <span>Total</span>
+      <span class="drawer-total-val" id="drawerTotal">৳0</span>
+    </div>
+    <a href="#order" class="btn-primary" style="display:block;text-align:center;width:100%;padding:1rem;" onclick="closeCart()">Proceed to Order</a>
+  </div>
+</div>
+
+<!-- NOTIFY MODAL -->
+<div class="notify-overlay" id="notifyOverlay" onclick="closeNotify()"></div>
+<div class="notify-modal" id="notifyModal" role="dialog" aria-modal="true" aria-labelledby="notifyTitle">
+  <button class="notify-close" onclick="closeNotify()">✕</button>
+  <h3 class="notify-title" id="notifyTitle">Notify me</h3>
+  <p class="notify-desc">Enter your WhatsApp number and we'll message you when it's available.</p>
+  <input class="form-input" id="notifyPhone" placeholder="01X-XXXXXXXXX" />
+  <div id="notifySuccess" style="display:none;margin-top:1rem;color:var(--sage)">Thanks — opening WhatsApp now...</div>
+  <div style="margin-top:1rem;display:flex;gap:0.5rem;">
+    <button class="btn-primary" onclick="submitNotify()">Send</button>
+    <button class="btn-outline" onclick="closeNotify()">Cancel</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">CURIO <span>রহস্য</span></a>
+  <ul class="nav-links">
+    <li><a href="#products">Boxes</a></li>
+    <li><a href="#signature">Signature</a></li>
+    <li><a href="#how">How it Works</a></li>
+    <li><a href="#modes">Fulfilment</a></li>
+    <li><a href="#order">Order</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-cart" onclick="openCart()">
+    🛍 Cart <span class="cart-count" id="cartCount">0</span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">✦ Dhaka's Mystery Box Brand ✦</div>
+    <h1 class="hero-title">
+      Unbox the<br><em>Unexpected.</em>
+    </h1>
+    <div class="hero-bengali">প্রতিটি বাক্সে লুকিয়ে আছে এক রহস্য</div>
+    <p class="hero-desc">
+      Curated mystery boxes for girls who love surprises. Every box is a new story — packed with accessories, stationery, lifestyle finds, and things you didn't know you needed.
+    </p>
+    <div class="hero-ctas">
+      <a href="#products" class="btn-primary">Shop Boxes</a>
+      <a href="#how" class="btn-outline">How It Works</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-bg-circle"></div>
+    <div class="hero-visual">
+      <div class="box-card box-card-1">
+        <div class="box-icon">🎁</div>
+        <div class="box-label">Small Box</div>
+        <div class="box-price">৳499</div>
+      </div>
+      <div class="box-card box-card-2">
+        <div class="box-icon">✨</div>
+        <div class="box-label">Classic Box</div>
+        <div class="box-price">৳799</div>
+      </div>
+      <div class="box-card box-card-3">
+        <div class="box-icon">🌙</div>
+        <div class="box-label">Mega Box</div>
+        <div class="box-price">৳1,199</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>Cash on Delivery — Inside Dhaka</span><span class="ticker-sep">✦</span>
+    <span>Live Unboxing via Scoop Mode</span><span class="ticker-sep">✦</span>
+    <span>Gift Wrapping Available</span><span class="ticker-sep">✦</span>
+    <span>No Two Boxes Are Ever the Same</span><span class="ticker-sep">✦</span>
+    <span>Cash on Delivery — Inside Dhaka</span><span class="ticker-sep">✦</span>
+    <span>Live Unboxing via Scoop Mode</span><span class="ticker-sep">✦</span>
+    <span>Gift Wrapping Available</span><span class="ticker-sep">✦</span>
+    <span>No Two Boxes Are Ever the Same</span><span class="ticker-sep">✦</span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-label">The Process</div>
+  <h2 class="section-title">How does the <em>magic</em> work?</h2>
+  <div class="how-grid">
+    <div class="how-step">
+      <div class="step-num">01</div>
+      <div class="step-title">Choose Your Box</div>
+      <p class="step-desc">Pick from three tiers — Small, Classic, or Mega — based on how deep into the mystery you want to go, or go all-in with our Signature box. More of a "just send me that one item" person? Skip the mystery entirely with a Normal Order.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">02</div>
+      <div class="step-title">Pick Your Mode</div>
+      <p class="step-desc">Go with <strong>Scoop</strong> to watch us pick your items live on video — you choose in real time. Go with <strong>Package</strong> for a fully curated surprise delivered to your door. Or choose <strong>Normal Order</strong> if you already know exactly what you want.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">03</div>
+      <div class="step-title">Easy Payment, Easy Delivery</div>
+      <p class="step-desc">Inside Dhaka? Pay cash when your order arrives at your doorstep — no advance needed. Outside Dhaka? We just need a small advance delivery charge via Bkash or Nagad to ship your order, then pay the rest on arrival.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products">
+
+  <!-- ── MYSTERY BOXES ── -->
+  <div class="products-header">
+    <div>
+      <div class="section-label">Mystery Boxes</div>
+      <h2 class="section-title">Choose your <em>mystery.</em></h2>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" onclick="filterBoxes('all', this)">All</button>
+      <button class="mode-btn" onclick="filterBoxes('scoop', this)">Scoop</button>
+      <button class="mode-btn" onclick="filterBoxes('package', this)">Package</button>
+    </div>
+  </div>
+
+  <div class="products-grid" id="boxesGrid">
+
+    <div class="product-card" data-mode="scoop">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #EDD5B0, #D4A574);"></div>
+        <div class="product-img-emoji">🎀</div>
+      </div>
+      <div class="product-tier">Small · Scoop</div>
+      <div class="product-info">
+        <div class="product-name">Small Scoop</div>
+        <p class="product-desc">5–6 mystery items. You watch, you choose — live video selection with us. Perfect for the curious first-timer.</p>
+        <div class="product-pricing">
+          <span class="price-new">৳499</span>
+          <span class="price-old">৳715</span>
+          <span class="price-badge">30% OFF</span>
+        </div>
+        <div class="product-tags"><span class="tag">Live Selection</span><span class="tag">5–6 Items</span><span class="tag">COD</span></div>
+        <div class="product-actions">
+          <button class="btn-add" onclick="addToCart('Small Scoop', 499, '🎀')">Add to Cart</button>
+          <a href="https://wa.me/8801615396654?text=I%20want%20to%20order%20Small%20Scoop!" target="_blank" class="btn-wa">WhatsApp</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card" data-mode="scoop">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #D4A57455, #EDD5B088);"></div>
+        <div class="product-img-emoji">🫧</div>
+      </div>
+      <div class="product-tier">Classic · Scoop</div>
+      <div class="product-info">
+        <div class="product-name">Classic Scoop</div>
+        <p class="product-desc">9–11 items, selected live with you on video. Best of both worlds — curated range, your personal touch.</p>
+        <div class="product-pricing">
+          <span class="price-new">৳799</span>
+          <span class="price-old">৳1,140</span>
+          <span class="price-badge">30% OFF</span>
+        </div>
+        <div class="product-tags"><span class="tag">Live Selection</span><span class="tag">9–11 Items</span><span class="tag">COD</span></div>
+        <div class="product-actions">
+          <button class="btn-add" onclick="addToCart('Classic Scoop', 799, '🫧')">Add to Cart</button>
+          <a href="https://wa.me/8801615396654?text=I%20want%20to%20order%20Classic%20Scoop!" target="_blank" class="btn-wa">WhatsApp</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card" data-mode="scoop">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #B8A06255, #7A9E7E88);"></div>
+        <div class="product-img-emoji">🌙</div>
+      </div>
+      <div class="product-tier">Mega · Scoop</div>
+      <div class="product-info">
+        <div class="product-name">Mega Scoop</div>
+        <p class="product-desc">15–18 premium items. Our most immersive live-selection experience. For the girl who wants the full ritual.</p>
+        <div class="product-pricing">
+          <span class="price-new">৳1,199</span>
+          <span class="price-old">৳1,715</span>
+          <span class="price-badge">30% OFF</span>
+        </div>
+        <div class="product-tags"><span class="tag">Live Selection</span><span class="tag">15–18 Items</span><span class="tag">COD</span></div>
+        <div class="product-actions">
+          <button class="btn-add" onclick="addToCart('Mega Scoop', 1199, '🌙')">Add to Cart</button>
+          <a href="https://wa.me/8801615396654?text=I%20want%20to%20order%20Mega%20Scoop!" target="_blank" class="btn-wa">WhatsApp</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card" data-mode="package">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #C4877A55, #C4877A99);"></div>
+        <div class="product-img-emoji">✨</div>
+      </div>
+      <div class="product-tier">Classic · Package</div>
+      <div class="product-info">
+        <div class="product-name">Classic Package</div>
+        <p class="product-desc">9–11 curated items, fully packed and surprise-sealed. We pick the vibe, you unwrap the mystery at home.</p>
+        <div class="product-pricing">
+          <span class="price-new">৳799</span>
+          <span class="price-old">৳1,140</span>
+          <span class="price-badge">30% OFF</span>
+        </div>
+        <div class="product-tags"><span class="tag">Curated</span><span class="tag">9–11 Items</span><span class="tag">COD</span></div>
+        <div class="product-actions">
+          <button class="btn-add" onclick="addToCart('Classic Package', 799, '✨')">Add to Cart</button>
+          <a href="https://wa.me/8801615396654?text=I%20want%20to%20order%20Classic%20Package!" target="_blank" class="btn-wa">WhatsApp</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card" data-mode="package">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #C4877A44, #EDD5B066);"></div>
+        <div class="product-img-emoji">🎁</div>
+      </div>
+      <div class="product-tier">Small · Package</div>
+      <div class="product-info">
+        <div class="product-name">Small Package</div>
+        <p class="product-desc">5–6 surprise items, sealed and gift-wrapped. Great as a first gift or a personal treat. No peeking.</p>
+        <div class="product-pricing">
+          <span class="price-new">৳499</span>
+          <span class="price-old">৳715</span>
+          <span class="price-badge">30% OFF</span>
+        </div>
+        <div class="product-tags"><span class="tag">Gift Ready</span><span class="tag">5–6 Items</span><span class="tag">COD</span></div>
+        <div class="product-actions">
+          <button class="btn-add" onclick="addToCart('Small Package', 499, '🎁')">Add to Cart</button>
+          <a href="https://wa.me/8801615396654?text=I%20want%20to%20order%20Small%20Package!" target="_blank" class="btn-wa">WhatsApp</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card" data-mode="package">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #7A9E7E55, #B8A06255);"></div>
+        <div class="product-img-emoji">🌸</div>
+      </div>
+      <div class="product-tier">Mega · Package</div>
+      <div class="product-info">
+        <div class="product-name">Mega Package</div>
+        <p class="product-desc">15–18 handpicked premium items in our most lavish sealed box. Zero spoilers. Maximum surprise.</p>
+        <div class="product-pricing">
+          <span class="price-new">৳1,199</span>
+          <span class="price-old">৳1,715</span>
+          <span class="price-badge">30% OFF</span>
+        </div>
+        <div class="product-tags"><span class="tag">Premium</span><span class="tag">15–18 Items</span><span class="tag">COD</span></div>
+        <div class="product-actions">
+          <button class="btn-add" onclick="addToCart('Mega Package', 1199, '🌸')">Add to Cart</button>
+          <a href="https://wa.me/8801615396654?text=I%20want%20to%20order%20Mega%20Package!" target="_blank" class="btn-wa">WhatsApp</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+<div class="promo-banner">
+  <div class="promo-banner-inner">
+    ✦ <strong>Free Gift on Orders ৳400+</strong> — Pink Clips included automatically with every qualifying order. Minimum order ৳250 · All prices include a 30% launch discount.
+  </div>
+</div>
+
+<section id="signature">
+  <div class="section-label">Signature</div>
+  <h2 class="section-title">Our Signature Collection</h2>
+  <div class="products-grid">
+    <div class="product-card" data-mode="scoop">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #95772955, #C4873A88);"></div>
+        <div class="product-img-emoji">💎</div>
+      </div>
+      <div class="product-tier">Signature · Scoop</div>
+      <div class="product-info">
+        <div class="product-name">Signature Scoop</div>
+        <p class="product-desc">27–30 premium items. The ultimate live-selection experience for the most adventurous mystery seeker.</p>
+        <div class="product-pricing">
+          <span class="price-new">৳1,999</span>
+          <span class="price-old">৳2,399</span>
+          <span class="price-badge">Launch Price</span>
+        </div>
+        <div class="product-tags"><span class="tag">Live Selection</span><span class="tag">27–30 Items</span><span class="tag">COD</span></div>
+        <div class="product-actions">
+          <button class="btn-add" onclick="addToCart('Signature Scoop', 1999, '💎')">Add to Cart</button>
+          <a href="https://wa.me/8801615396654?text=I%20want%20to%20order%20Signature%20Scoop!" target="_blank" class="btn-wa">WhatsApp</a>
+        </div>
+      </div>
+    </div>
+    <div class="product-card" data-mode="package">
+      <div class="product-img">
+        <div class="product-img-bg" style="background: linear-gradient(135deg, #95772955, #C4873A88);"></div>
+        <div class="product-img-emoji">💎</div>
+      </div>
+      <div class="product-tier">Signature · Package</div>
+      <div class="product-info">
+        <div class="product-name">Signature Package</div>
+        <p class="product-desc">27–30 premium items, handpicked and sealed for the ultimate surprise. Designed for those who want the best.</p>
+        <div class="product-pricing">
+          <span class="price-new">৳1,999</span>
+          <span class="price-old">৳2,399</span>
+          <span class="price-badge">Launch Price</span>
+        </div>
+        <div class="product-tags"><span class="tag">Premium</span><span class="tag">27–30 Items</span><span class="tag">COD</span></div>
+        <div class="product-actions">
+          <button class="btn-add" onclick="addToCart('Signature Package', 1999, '💎')">Add to Cart</button>
+          <a href="https://wa.me/8801615396654?text=I%20want%20to%20order%20Signature%20Package!" target="_blank" class="btn-wa">WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- ── INDIVIDUAL PRODUCTS ── -->
+<section id="individual">
+  <div class="indiv-header">
+    <div class="section-label" style="margin-bottom:0.6rem;">Shop Individual Items</div>
+    <h2 class="section-title" style="margin-bottom:2rem;">Or pick <em>exactly</em> what you want.</h2>
+
+    <div class="cat-tabs" id="catTabs">
+      <button class="cat-tab active" onclick="filterCat('all', this)">All</button>
+      <button class="cat-tab" onclick="filterCat('Jewelry', this)">Jewelry</button>
+      <button class="cat-tab" onclick="filterCat('Hair &amp; Bindis', this)">Hair &amp; Bindis</button>
+      <button class="cat-tab" onclick="filterCat('Character', this)">Character</button>
+      <button class="cat-tab" onclick="filterCat('Stationery', this)">Stationery</button>
+    </div>
+  </div>
+
+  <div class="indiv-grid" id="indivGrid">
+
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B0,#C4873A44);"></div>
+        <div class="indiv-emoji">💍</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Variant 1</div><div class="indiv-name">Chunky Rings</div>
+        <p class="indiv-tagline">Stack 'em. Own the aesthetic.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳149</span>
+          <span class="indiv-price-old">৳213</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Chunky Rings (Variant 1)', 149, '💍')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#C4877A44,#EDD5B0);"></div>
+        <div class="indiv-emoji">💍</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Variant 2</div><div class="indiv-name">Chunky Rings</div>
+        <p class="indiv-tagline">Stack 'em. Own the aesthetic.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳149</span>
+          <span class="indiv-price-old">৳213</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Chunky Rings (Variant 2)', 149, '💍')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#B8A06244,#EDE5D0);"></div>
+        <div class="indiv-emoji">💍</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Variant 1</div><div class="indiv-name">Enamel Rings</div>
+        <p class="indiv-tagline">Tiny art. Worn on your finger.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳169</span>
+          <span class="indiv-price-old">৳241</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Enamel Rings (Variant 1)', 169, '💍')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#D4A57444,#C4877A55);"></div>
+        <div class="indiv-emoji">💍</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Variant 2</div><div class="indiv-name">Enamel Rings</div>
+        <p class="indiv-tagline">Tiny art. Worn on your finger.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳169</span>
+          <span class="indiv-price-old">৳241</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Enamel Rings (Variant 2)', 169, '💍')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#7A9E7E44,#B8A06244);"></div>
+        <div class="indiv-emoji">💍</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Variant 3</div><div class="indiv-name">Enamel Rings</div>
+        <p class="indiv-tagline">Tiny art. Worn on your finger.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳169</span>
+          <span class="indiv-price-old">৳241</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Enamel Rings (Variant 3)', 169, '💍')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDE5D0,#C4873A33);"></div>
+        <div class="indiv-emoji">📿</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Bracelet (4pc Packet)</div>
+        <p class="indiv-tagline">Four bracelets. One wrist. Infinite combinations.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳299</span>
+          <span class="indiv-price-old">৳427</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Bracelet (4pc Packet)', 299, '📿')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#C4877A33,#D4A57444);"></div>
+        <div class="indiv-emoji">💧</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Water Droplet Earrings</div>
+        <p class="indiv-tagline">Light. Airy. Effortlessly you.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳149</span>
+          <span class="indiv-price-old">৳213</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Water Droplet Earrings', 149, '💧')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B033,#C4877A44);"></div>
+        <div class="indiv-emoji">🤍</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Pearl Stud Earrings</div>
+        <p class="indiv-tagline">Old money energy. New girl attitude.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳199</span>
+          <span class="indiv-price-old">৳284</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Pearl Stud Earrings', 199, '🤍')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#B8A06233,#7A9E7E44);"></div>
+        <div class="indiv-emoji">🍒</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Cherry Earrings</div>
+        <p class="indiv-tagline">Sweet. Playful. Totally iconic.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳149</span>
+          <span class="indiv-price-old">৳213</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Cherry Earrings', 149, '🍒')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B044,#B8A06233);"></div>
+        <div class="indiv-emoji">🦪</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Pearl Earrings</div>
+        <p class="indiv-tagline">Pearls, but make it interesting.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳249</span>
+          <span class="indiv-price-old">৳356</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Pearl Earrings', 249, '🦪')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#7A9E7E33,#EDE5D0);"></div>
+        <div class="indiv-emoji">🌀</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Helix Earrings</div>
+        <p class="indiv-tagline">Designed for the girl who collects earrings.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳199</span>
+          <span class="indiv-price-old">৳284</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Helix Earrings', 199, '🌀')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#C4873A22,#B8A06244);"></div>
+        <div class="indiv-emoji">🦚</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Moyur Earrings</div>
+        <p class="indiv-tagline">Inspired by the peacock. Worn by you.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳249</span>
+          <span class="indiv-price-old">৳356</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Moyur Earrings', 249, '🦚')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B0,#C4873A44);"></div>
+        <div class="indiv-emoji">🔔</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Jhumka</div>
+        <p class="indiv-tagline">Your deshi roots. Your Y2K moment.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳219</span>
+          <span class="indiv-price-old">৳313</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Jhumka', 219, '🔔')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#C4877A44,#EDD5B0);"></div>
+        <div class="indiv-emoji">🔔</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Type 1</div><div class="indiv-name">Mini Jhumka</div>
+        <p class="indiv-tagline">All the culture. Half the size.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳129</span>
+          <span class="indiv-price-old">৳184</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Mini Jhumka (Type 1)', 129, '🔔')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#B8A06244,#EDE5D0);"></div>
+        <div class="indiv-emoji">🔔</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Type 2</div><div class="indiv-name">Mini Jhumka</div>
+        <p class="indiv-tagline">All the culture. Half the size.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳129</span>
+          <span class="indiv-price-old">৳184</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Mini Jhumka (Type 2)', 129, '🔔')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#D4A57444,#C4877A55);"></div>
+        <div class="indiv-emoji">🔔</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Type 3</div><div class="indiv-name">Mini Jhumka</div>
+        <p class="indiv-tagline">All the culture. Half the size.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳129</span>
+          <span class="indiv-price-old">৳184</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Mini Jhumka (Type 3)', 129, '🔔')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#7A9E7E44,#B8A06244);"></div>
+        <div class="indiv-emoji">🌸</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Type 1</div><div class="indiv-name">Pendants</div>
+        <p class="indiv-tagline">A little mystery. Right at your heart.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳179</span>
+          <span class="indiv-price-old">৳256</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Pendants (Type 1)', 179, '🌸')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Jewelry">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDE5D0,#C4873A33);"></div>
+        <div class="indiv-emoji">🌸</div>
+      </div>
+      <div class="indiv-cat-badge">Jewelry</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Type 2</div><div class="indiv-name">Pendants</div>
+        <p class="indiv-tagline">A little mystery. Right at your heart.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳179</span>
+          <span class="indiv-price-old">৳256</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Pendants (Type 2)', 179, '🌸')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Hair &amp; Bindis">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#C4877A33,#D4A57444);"></div>
+        <div class="indiv-emoji">🌙</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--dusty-rose)">Hair &amp; Bindis</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Chaad Tip (Sheet)</div>
+        <p class="indiv-tagline">Wear the moon on your forehead.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳49</span>
+          <span class="indiv-price-old">৳70</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Chaad Tip (Sheet)', 49, '🌙')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Hair &amp; Bindis">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B033,#C4877A44);"></div>
+        <div class="indiv-emoji">💎</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--dusty-rose)">Hair &amp; Bindis</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Stone Tip (Sheet)</div>
+        <p class="indiv-tagline">A sparkle. Right between your brows.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳49</span>
+          <span class="indiv-price-old">৳70</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Stone Tip (Sheet)', 49, '💎')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Hair &amp; Bindis">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#B8A06233,#7A9E7E44);"></div>
+        <div class="indiv-emoji">🦀</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--dusty-rose)">Hair &amp; Bindis</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Claw Clips</div>
+        <p class="indiv-tagline">Hair up. Confidence on.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳99</span>
+          <span class="indiv-price-old">৳141</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Claw Clips', 99, '🦀')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Hair &amp; Bindis">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B044,#B8A06233);"></div>
+        <div class="indiv-emoji">📎</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--dusty-rose)">Hair &amp; Bindis</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Clips</div>
+        <p class="indiv-tagline">Small clips. Big statement.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳79</span>
+          <span class="indiv-price-old">৳113</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Clips', 79, '📎')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Character">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#7A9E7E33,#EDE5D0);"></div>
+        <div class="indiv-emoji">🖤</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--sage)">Character</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Kuromi Key Ring</div>
+        <p class="indiv-tagline">Dark, cute, and kind of iconic.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳199</span>
+          <span class="indiv-price-old">৳284</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Kuromi Key Ring', 199, '🖤')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Character">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#C4873A22,#B8A06244);"></div>
+        <div class="indiv-emoji">🥤</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--sage)">Character</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Tumbler Key Ring</div>
+        <p class="indiv-tagline">For the girl who never puts down her cup.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳199</span>
+          <span class="indiv-price-old">৳284</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Tumbler Key Ring', 199, '🥤')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Character">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B0,#C4873A44);"></div>
+        <div class="indiv-emoji">🎀</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--sage)">Character</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Pink Bow Key Ring</div>
+        <p class="indiv-tagline">Coquette energy. Always.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳99</span>
+          <span class="indiv-price-old">৳141</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Pink Bow Key Ring', 99, '🎀')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Character">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#C4877A44,#EDD5B0);"></div>
+        <div class="indiv-emoji">🚗</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--sage)">Character</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Car Key Ring</div>
+        <p class="indiv-tagline">For the girl who moves on her own terms.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳129</span>
+          <span class="indiv-price-old">৳184</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Car Key Ring', 129, '🚗')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Character">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#B8A06244,#EDE5D0);"></div>
+        <div class="indiv-emoji">🔮</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--sage)">Character</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Crystal Key Ring</div>
+        <p class="indiv-tagline">A little mystical. A lot beautiful.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳199</span>
+          <span class="indiv-price-old">৳284</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Crystal Key Ring', 199, '🔮')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Character">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#D4A57444,#C4877A55);"></div>
+        <div class="indiv-emoji">🐱</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--sage)">Character</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Hello Kitty Key Ring</div>
+        <p class="indiv-tagline">A classic. Forever.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳199</span>
+          <span class="indiv-price-old">৳284</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Hello Kitty Key Ring', 199, '🐱')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Character">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#7A9E7E44,#B8A06244);"></div>
+        <div class="indiv-emoji">👛</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--sage)">Character</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Pouch Bag</div>
+        <p class="indiv-tagline">Tiny bag. Big personality.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳249</span>
+          <span class="indiv-price-old">৳356</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Pouch Bag', 249, '👛')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Character">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDE5D0,#C4873A33);"></div>
+        <div class="indiv-emoji">📱</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--sage)">Character</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Phone Charms</div>
+        <p class="indiv-tagline">Your phone. But make it cute.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳229</span>
+          <span class="indiv-price-old">৳327</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Phone Charms', 229, '📱')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#C4877A33,#D4A57444);"></div>
+        <div class="indiv-emoji">💵</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Dollar Pencil</div>
+        <p class="indiv-tagline">Write rich.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳99</span>
+          <span class="indiv-price-old">৳141</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Dollar Pencil', 99, '💵')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B033,#C4877A44);"></div>
+        <div class="indiv-emoji">🖋️</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Fountain Pen</div>
+        <p class="indiv-tagline">Old soul. New notes.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳129</span>
+          <span class="indiv-price-old">৳184</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Fountain Pen', 129, '🖋️')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#B8A06233,#7A9E7E44);"></div>
+        <div class="indiv-emoji">🎒</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Stationery Set</div>
+        <p class="indiv-tagline">Everything you need. All in one.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳220</span>
+          <span class="indiv-price-old">৳314</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Stationery Set', 220, '🎒')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B044,#B8A06233);"></div>
+        <div class="indiv-emoji">⚙️</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Sharpener</div>
+        <p class="indiv-tagline">Sharp pencils. Sharper mind.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳99</span>
+          <span class="indiv-price-old">৳141</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Sharpener', 99, '⚙️')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#7A9E7E33,#EDE5D0);"></div>
+        <div class="indiv-emoji">📓</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Kuromi Notebook</div>
+        <p class="indiv-tagline">Dark thoughts deserve a dark journal.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳199</span>
+          <span class="indiv-price-old">৳284</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Kuromi Notebook', 199, '📓')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#C4873A22,#B8A06244);"></div>
+        <div class="indiv-emoji">🖍️</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Colour 1</div><div class="indiv-name">Highlighter</div>
+        <p class="indiv-tagline">Highlight the important stuff.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳39</span>
+          <span class="indiv-price-old">৳56</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Highlighter (Colour 1)', 39, '🖍️')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B0,#C4873A44);"></div>
+        <div class="indiv-emoji">🖍️</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Colour 2</div><div class="indiv-name">Highlighter</div>
+        <p class="indiv-tagline">Highlight the important stuff.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳39</span>
+          <span class="indiv-price-old">৳56</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Highlighter (Colour 2)', 39, '🖍️')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#C4877A44,#EDD5B0);"></div>
+        <div class="indiv-emoji">🖍️</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Colour 3</div><div class="indiv-name">Highlighter</div>
+        <p class="indiv-tagline">Highlight the important stuff.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳39</span>
+          <span class="indiv-price-old">৳56</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Highlighter (Colour 3)', 39, '🖍️')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#B8A06244,#EDE5D0);"></div>
+        <div class="indiv-emoji">🖍️</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-variant">Colour 4</div><div class="indiv-name">Highlighter</div>
+        <p class="indiv-tagline">Highlight the important stuff.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳39</span>
+          <span class="indiv-price-old">৳56</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Highlighter (Colour 4)', 39, '🖍️')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#D4A57444,#C4877A55);"></div>
+        <div class="indiv-emoji">🏷️</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Kuromi Stickers</div>
+        <p class="indiv-tagline">Sticker your whole world in Kuromi.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳99</span>
+          <span class="indiv-price-old">৳141</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Kuromi Stickers', 99, '🏷️')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#7A9E7E44,#B8A06244);"></div>
+        <div class="indiv-emoji">✨</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-name">3D Stickers</div>
+        <p class="indiv-tagline">Stickers with depth. Literally.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳99</span>
+          <span class="indiv-price-old">৳141</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('3D Stickers', 99, '✨')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDE5D0,#C4873A33);"></div>
+        <div class="indiv-emoji">🌟</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Normal Stickers</div>
+        <p class="indiv-tagline">Stick to what you love.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳65</span>
+          <span class="indiv-price-old">৳93</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Normal Stickers', 65, '🌟')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#C4877A33,#D4A57444);"></div>
+        <div class="indiv-emoji">👹</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Labubu Stickers</div>
+        <p class="indiv-tagline">The mischievous little one. Now in sticker form.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳129</span>
+          <span class="indiv-price-old">৳184</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Labubu Stickers', 129, '👹')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B033,#C4877A44);"></div>
+        <div class="indiv-emoji">🥤</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Straws (per unit)</div>
+        <p class="indiv-tagline">Drink cute.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳40</span>
+          <span class="indiv-price-old">৳57</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Straws (per unit)', 40, '🥤')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="indiv-card" data-cat="Stationery">
+      <div class="indiv-img">
+        <div class="indiv-img-bg" style="background:linear-gradient(135deg,#B8A06233,#7A9E7E44);"></div>
+        <div class="indiv-emoji">🧃</div>
+      </div>
+      <div class="indiv-cat-badge" style="background:var(--muted-gold)">Stationery</div>
+      <div class="indiv-info">
+        <div class="indiv-name">Straws (4pc Packet)</div>
+        <p class="indiv-tagline">Four straws. Four moods.</p>
+        <div class="indiv-pricing">
+          <span class="indiv-price-new">৳120</span>
+          <span class="indiv-price-old">৳171</span>
+          <span class="indiv-discount">30% OFF</span>
+        </div>
+        <button class="btn-add-indiv" onclick="addToCart('Straws (4pc Packet)', 120, '🧃')">Add to Cart</button>
+      </div>
+    </div>
+
+  </div><!-- /indiv-grid -->
+
+</section>
+
+<!-- FULFILMENT MODES -->
+<section id="modes">
+  <div class="modes-left">
+    <div class="section-label">Fulfilment</div>
+    <h2 class="section-title">Three ways to <em>shop</em> with us.</h2>
+    <p style="font-size:0.72rem;line-height:1.9;opacity:0.55;max-width:400px;">
+      Want the thrill of a surprise, or know exactly what you're after? Either way, we've got a mode for you — watch it unfold live, let us curate it, or just order what you see.
+    </p>
+  </div>
+  <div class="modes-right">
+    <div class="mode-card">
+      <div class="mode-icon">🎥</div>
+      <div class="mode-card-label">Mode 01</div>
+      <div class="mode-card-title">Scoop — Live Selection</div>
+      <p class="mode-card-desc">We hop on a video call or go live. You watch us pick items from our stash in real time. You guide us, you approve the final picks. It ships within 24 hours of the call.</p>
+    </div>
+    <div class="mode-card">
+      <div class="mode-icon">📦</div>
+      <div class="mode-card-label">Mode 02</div>
+      <div class="mode-card-title">Package — Curated Surprise</div>
+      <p class="mode-card-desc">Place your order and we handle everything. Our team curates a box themed to your tier, seals it with mystery tape, and delivers it to your door. Pay only when it arrives.</p>
+    </div>
+    <div class="mode-card">
+      <div class="mode-icon">🛍️</div>
+      <div class="mode-card-label">Mode 03</div>
+      <div class="mode-card-title">Normal Order — Pick &amp; Ship</div>
+      <p class="mode-card-desc">Already know what you want? Skip the mystery completely. Pick individual items straight from the catalogue and we'll pack and send exactly that — no surprises, just your picks.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ORDER -->
+<section id="order">
+  <div class="section-label">Place an Order</div>
+  <h2 class="section-title">Ready to unbox <em>something?</em></h2>
+
+  <div class="order-layout">
+    <div class="order-summary">
+      <h3>Your Cart</h3>
+      <div class="cart-items" id="cartItemsList"></div>
+      <div class="cart-empty" id="cartEmptyMsg">Your cart is empty — add a box or item above ✦</div>
+      <div class="cart-total" id="cartTotalRow" style="display:none">
+        <span class="cart-total-label">Total</span>
+        <span class="cart-total-value" id="cartTotalDisplay">৳0</span>
+      </div>
+      <div class="cod-note">
+        ✦ <strong>Inside Dhaka:</strong> Cash on Delivery — pay when it arrives, no advance needed.<br>
+        ✦ <strong>Outside Dhaka:</strong> A small advance delivery charge via Bkash/Nagad is required to ship your order. Pay the rest on arrival.
+      </div>
+    </div>
+
+    <div>
+      <div class="order-form" id="orderForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Your Name *</label>
+            <input class="form-input" type="text" id="custName" placeholder="Full name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number *</label>
+            <input class="form-input" type="tel" id="custPhone" placeholder="01X-XXXXXXXXX" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Delivery Address *</label>
+          <input class="form-input" type="text" id="custAddress" placeholder="House, Road, Area, City" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Delivery Area *</label>
+            <select class="form-select" id="deliveryArea" onchange="toggleDeliveryNote()">
+              <option value="">-- select area --</option>
+              <option value="Inside Dhaka (COD)">Inside Dhaka — Cash on Delivery</option>
+              <option value="Outside Dhaka (Advance via Bkash/Nagad)">Outside Dhaka — Advance via Bkash/Nagad</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Order Type</label>
+            <select class="form-select" id="boxTier">
+              <option value="">-- select type --</option>
+              <option value="Small Box (৳499)">Small Box — ৳499</option>
+              <option value="Classic Box (৳799)">Classic Box — ৳799</option>
+              <option value="Mega Box (৳1,199)">Mega Box — ৳1,199</option>
+              <option value="Signature Box (৳1,999)">Signature Box — ৳1,999</option>
+              <option value="Normal Order (Individual Items)">Normal Order — Individual Items</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fulfilment Mode</label>
+          <select class="form-select" id="boxMode">
+            <option value="">-- select mode --</option>
+            <option value="Scoop (Live Video)">Scoop — Live Video</option>
+            <option value="Package (Curated)">Package — Curated Surprise</option>
+            <option value="Normal Order (Pick &amp; Ship)">Normal Order — Pick &amp; Ship</option>
+          </select>
+        </div>
+        <div id="advanceNote" class="cod-note" style="display:none;border-left-color:var(--amber);background:rgba(196,135,58,0.08);">
+          ✦ For deliveries outside Dhaka, please send a small advance delivery charge via Bkash/Nagad to <strong>01615-396654</strong> after placing your order. We'll confirm the amount over WhatsApp before shipping.
+        </div>
+        <div class="form-group">
+          <label class="form-label">Is this a gift?</label>
+          <select class="form-select" id="isGift">
+            <option value="No">No, it's for me</option>
+            <option value="Yes">Yes — add gift wrapping</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Any notes or preferences?</label>
+          <textarea class="form-textarea" id="custNotes" placeholder="Colour preferences, allergies, special requests..."></textarea>
+        </div>
+        <button class="submit-btn" onclick="submitOrder()">✦ Place My Order</button>
+      </div>
+
+      <div class="order-success" id="orderSuccess">
+        <div class="tick">🎉</div>
+        <h3>Order Received!</h3>
+        <p>Thank you! We'll WhatsApp you within a few hours to confirm your order and arrange delivery. Get ready to unbox something special.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-info">
+    <div class="section-label">Get in Touch</div>
+    <h2 class="section-title">Questions? <em>Just ask.</em></h2>
+    <div class="contact-details">
+      <div class="contact-detail">
+        <div class="contact-detail-icon">📍</div>
+        <div class="contact-detail-text">
+          <h4>Location</h4>
+          <p>Dhaka, Bangladesh<br>Delivery available nationwide</p>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">📲</div>
+        <div class="contact-detail-text">
+          <h4>WhatsApp</h4>
+          <p><a href="https://wa.me/8801615396654">+880 1615-396654</a></p>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">📧</div>
+        <div class="contact-detail-text">
+          <h4>Email</h4>
+          <p><a href="mailto:curiorohossho@gmail.com">curiorohossho@gmail.com</a></p>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">🕐</div>
+        <div class="contact-detail-text">
+          <h4>Response Time</h4>
+          <p>Within a few hours<br>Sat–Thu, 10am–9pm</p>
+        </div>
+      </div>
+    </div>
+    <div class="social-links">
+      <a class="social-link" href="https://www.instagram.com/curio.rohossho?igsh=N3pmbmtoZXdhMjJm" target="_blank" title="Instagram">📸</a>
+      <a class="social-link" href="https://www.facebook.com/share/1Jne11hvWM/" target="_blank" title="Facebook">👥</a>
+      <a class="social-link" href="https://wa.me/8801615396654" target="_blank" title="WhatsApp">💬</a>
+      <a class="social-link" href="https://tiktok.com/@curiorohossho" target="_blank" title="TikTok">🎵</a>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label" style="margin-bottom:1.5rem;">Send a Message</div>
+    <div class="contact-form" id="contactForm">
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input class="form-input" type="text" id="cName" placeholder="Name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone / Email</label>
+        <input class="form-input" type="text" id="cContact" placeholder="How should we reach you?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <select class="form-select" id="cSubject">
+          <option>General Inquiry</option>
+          <option>Order Issue</option>
+          <option>Gift Ordering</option>
+          <option>Collaboration / Press</option>
+          <option>Something Else</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Message</label>
+        <textarea class="form-textarea" id="cMessage" placeholder="Tell us what's on your mind..."></textarea>
+      </div>
+      <button class="submit-btn" onclick="submitContact()">Send Message</button>
+    </div>
+    <div class="form-success" id="contactSuccess">
+      <p>✦ Message received! We'll get back to you shortly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand-name">CURIO <em>রহস্য</em></div>
+      <p class="footer-brand-desc">Dhaka's mystery box brand. Curated surprises for those who love the unexpected. Cash on delivery inside Dhaka, easy Bkash/Nagad advance for nationwide shipping.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul class="footer-links">
+        <li><a href="#products">Small Box</a></li>
+        <li><a href="#products">Classic Box</a></li>
+        <li><a href="#products">Mega Box</a></li>
+        <li><a href="#signature">Signature Box</a></li>
+        <li><a href="#modes">Scoop Mode</a></li>
+        <li><a href="#modes">Package Mode</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Info</h4>
+      <ul class="footer-links">
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#order">Place an Order</a></li>
+        <li><a href="#contact">Contact Us</a></li>
+        <li><a href="https://www.instagram.com/curio.rohossho?igsh=N3pmbmtoZXdhMjJm" target="_blank">Instagram</a></li>
+        <li><a href="https://wa.me/8801615396654" target="_blank">WhatsApp</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 CURIO রহস্য. All rights reserved.</span>
+    <span>Dhaka, Bangladesh ✦ Nationwide Delivery</span>
+  </div>
+</footer>
+
+<script>
+  // ── CART STATE ──
+  let cart = [];
+
+  function addToCart(name, price, emoji) {
+    cart.push({ name, price, emoji, id: Date.now() });
+    updateCartUI();
+    openCart();
+  }
+
+  function removeFromCart(id) {
+    cart = cart.filter(i => i.id !== id);
+    updateCartUI();
+  }
+
+  function updateCartUI() {
+    const count = cart.length;
+    document.getElementById('cartCount').textContent = count;
+
+    // Drawer
+    const drawerEl = document.getElementById('drawerItems');
+    const footerEl = document.getElementById('drawerFooter');
+
+    if (count === 0) {
+      drawerEl.innerHTML = '<div class="drawer-empty"><div class="drawer-empty-icon">🛍</div><p>No items yet.<br>Add a box or item above.</p></div>';
+      footerEl.style.display = 'none';
+    } else {
+      drawerEl.innerHTML = cart.map(item => `
+        <div class="drawer-item">
+          <div class="drawer-item-emoji">${item.emoji}</div>
+          <div class="drawer-item-info">
+            <div class="drawer-item-name">${item.name}</div>
+            <div class="drawer-item-price">৳${item.price.toLocaleString()}</div>
+          </div>
+          <button class="drawer-remove" onclick="removeFromCart(${item.id})">✕</button>
+        </div>
+      `).join('');
+      const total = cart.reduce((s, i) => s + i.price, 0);
+      document.getElementById('drawerTotal').textContent = '৳' + total.toLocaleString();
+      footerEl.style.display = 'block';
+    }
+
+    // Order section cart
+    const listEl = document.getElementById('cartItemsList');
+    const emptyMsg = document.getElementById('cartEmptyMsg');
+    const totalRow = document.getElementById('cartTotalRow');
+
+    if (count === 0) {
+      emptyMsg.style.display = 'block';
+      totalRow.style.display = 'none';
+      listEl.innerHTML = '';
+    } else {
+      const total = cart.reduce((s, i) => s + i.price, 0);
+      emptyMsg.style.display = 'none';
+      listEl.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <span class="cart-item-name">${item.emoji} ${item.name}</span>
+          <span class="cart-item-price">৳${item.price.toLocaleString()}</span>
+          <button class="cart-item-remove" onclick="removeFromCart(${item.id})">✕</button>
+        </div>
+      `).join('');
+      totalRow.style.display = 'flex';
+      document.getElementById('cartTotalDisplay').textContent = '৳' + total.toLocaleString();
+    }
+  }
+
+  function openCart() {
+    document.getElementById('cartDrawer').classList.add('open');
+    document.getElementById('cartOverlay').classList.add('open');
+  }
+  function closeCart() {
+    document.getElementById('cartDrawer').classList.remove('open');
+    document.getElementById('cartOverlay').classList.remove('open');
+  }
+
+  // ── BOX FILTER ──
+  function filterBoxes(mode, btn) {
+    document.querySelectorAll('.mode-toggle .mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#boxesGrid .product-card').forEach(card => {
+      card.style.display = (mode === 'all' || card.dataset.mode === mode) ? '' : 'none';
+    });
+  }
+
+  // ── CATEGORY FILTER ──
+  function filterCat(cat, btn) {
+    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.indiv-card').forEach(card => {
+      card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+    });
+  }
+
+  // ── NOTIFY ME ──
+  let currentNotifyProduct = '';
+  function notifyMe(product) {
+    currentNotifyProduct = product;
+    document.getElementById('notifyTitle').textContent = 'Notify me about ' + product;
+    document.getElementById('notifyPhone').value = '';
+    document.getElementById('notifySuccess').style.display = 'none';
+    document.getElementById('notifyOverlay').classList.add('open');
+    document.getElementById('notifyModal').classList.add('open');
+  }
+  function closeNotify() {
+    document.getElementById('notifyOverlay').classList.remove('open');
+    document.getElementById('notifyModal').classList.remove('open');
+  }
+  function submitNotify() {
+    const phone = document.getElementById('notifyPhone').value.trim();
+    if (!phone) { alert('Please enter your WhatsApp number.'); return; }
+    const msg = encodeURIComponent(`🔔 Notify me about: ${currentNotifyProduct}\nMy number: ${phone}`);
+    document.getElementById('notifySuccess').style.display = 'block';
+    setTimeout(() => {
+      window.open(`https://wa.me/8801615396654?text=${msg}`, '_blank');
+    }, 500);
+  }
+
+  // ── DELIVERY AREA NOTE ──
+  function toggleDeliveryNote() {
+    const area = document.getElementById('deliveryArea').value;
+    const note = document.getElementById('advanceNote');
+    note.style.display = area.startsWith('Outside Dhaka') ? 'block' : 'none';
+  }
+
+  // ── ORDER SUBMISSION ──
+  function submitOrder() {
+    const name = document.getElementById('custName').value.trim();
+    const phone = document.getElementById('custPhone').value.trim();
+    const address = document.getElementById('custAddress').value.trim();
+    const area = document.getElementById('deliveryArea').value;
+
+    if (!name || !phone || !address) {
+      alert('Please fill in your name, phone, and address.');
+      return;
+    }
+    if (!area) {
+      alert('Please select your delivery area (Inside or Outside Dhaka).');
+      return;
+    }
+
+    const tier = document.getElementById('boxTier').value || 'Not specified';
+    const mode = document.getElementById('boxMode').value || 'Not specified';
+    const gift = document.getElementById('isGift').value;
+    const notes = document.getElementById('custNotes').value;
+    const cartSummary = cart.length > 0
+      ? cart.map(i => i.name + ' ৳' + i.price).join(', ')
+      : tier;
+
+    // Build WhatsApp message as backup / notification
+    const msg = encodeURIComponent(
+      `🛍 New CURIO Order!\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nDelivery Area: ${area}\nOrder Type: ${tier}\nMode: ${mode}\nCart: ${cartSummary}\nGift: ${gift}\nNotes: ${notes || 'None'}`
+    );
+
+    // Show success
+    document.getElementById('orderForm').style.display = 'none';
+    document.getElementById('orderSuccess').style.display = 'block';
+
+    // Open WhatsApp notification to store owner (replace number)
+    setTimeout(() => {
+      window.open(`https://wa.me/8801615396654?text=${msg}`, '_blank');
+    }, 800);
+  }
+
+  // ── CONTACT SUBMISSION ──
+  function submitContact() {
+    const name = document.getElementById('cName').value.trim();
+    const contact = document.getElementById('cContact').value.trim();
+    const subject = document.getElementById('cSubject').value;
+    const message = document.getElementById('cMessage').value.trim();
+
+    if (!message) { alert('Please write a message.'); return; }
+
+    const msg = encodeURIComponent(
+      `📩 Message from CURIO site\n\nName: ${name || 'N/A'}\nContact: ${contact || 'N/A'}\nSubject: ${subject}\n\n${message}`
+    );
+
+    document.getElementById('contactForm').style.display = 'none';
+    document.getElementById('contactSuccess').style.display = 'block';
+
+    setTimeout(() => {
+      window.open(`https://wa.me/8801615396654?text=${msg}`, '_blank');
+    }, 600);
+  }
+
+  // ── NAV SCROLL EFFECT ──
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    if (window.scrollY > 60) {
+      nav.style.boxShadow = '0 4px 20px rgba(26,18,8,0.08)';
+    } else {
+      nav.style.boxShadow = 'none';
+    }
+  });
+
+  // ── INIT ──
+  updateCartUI();
+</script>
+</body>
+</html>
