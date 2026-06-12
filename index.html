@@ -2587,8 +2587,15 @@
   // ── INITIALIZE SUPABASE CLIENT ──
   const SUPABASE_URL = 'https://nmdiwayyluvaaxrupkij.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_FMuWXJOJ5lSGGUs6GnQ7HQ_taqKQyyU';
-  const { createClient } = window.supabase;
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let supabase;
+
+  // Wait for Supabase library to load
+  if (window.supabase && window.supabase.createClient) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } else {
+    console.warn('Supabase library not loaded, initializing without database support');
+    supabase = null;
+  }
 
   // ── CART STATE ──
   let cart = [];
@@ -2750,12 +2757,14 @@
     };
 
     try {
-      // 2. Insert record into PostgreSQL database
-      const { data, error } = await supabase
-        .from('orders')
-        .insert([orderPayload]);
+      // 2. Insert record into PostgreSQL database (if Supabase is available)
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('orders')
+          .insert([orderPayload]);
 
-      if (error) throw error;
+        if (error) throw error;
+      }
 
       // 3. Keep your original operational UI update flow
       const cartSummary = cart.length > 0
