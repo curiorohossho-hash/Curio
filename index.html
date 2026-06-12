@@ -2582,7 +2582,13 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  // ── INITIALIZE SUPABASE CLIENT ──
+  const SUPABASE_URL = 'https://nmdiwayyluvaaxrupkij.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_FMuWXJOJ5lSGGUs6GnQ7HQ_taqKQyyU';
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   // ── CART STATE ──
   let cart = [];
 
@@ -2707,7 +2713,7 @@
   }
 
   // ── ORDER SUBMISSION ──
-  function submitOrder() {
+  async function submitOrder() {
     const name = document.getElementById('custName').value.trim();
     const phone = document.getElementById('custPhone').value.trim();
     const address = document.getElementById('custAddress').value.trim();
@@ -2726,23 +2732,55 @@
     const mode = document.getElementById('boxMode').value || 'Not specified';
     const gift = document.getElementById('isGift').value;
     const notes = document.getElementById('custNotes').value;
-    const cartSummary = cart.length > 0
-      ? cart.map(i => i.name + ' ৳' + i.price).join(', ')
-      : tier;
+    const total = cart.reduce((s, i) => s + i.price, 0);
 
-    // Build WhatsApp message as backup / notification
-    const msg = encodeURIComponent(
-      `🛍 New CURIO Order!\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nDelivery Area: ${area}\nOrder Type: ${tier}\nMode: ${mode}\nCart: ${cartSummary}\nGift: ${gift}\nNotes: ${notes || 'None'}`
-    );
+    // 1. Prepare data payload for Supabase
+    const orderPayload = {
+      customer_name: name,
+      phone_number: phone,
+      delivery_address: address,
+      delivery_area: area,
+      order_type: tier,
+      fulfilment_mode: mode,
+      is_gift: gift,
+      customer_notes: notes,
+      cart_data: cart, // Save full structural array info
+      total_price: total
+    };
 
-    // Show success
-    document.getElementById('orderForm').style.display = 'none';
-    document.getElementById('orderSuccess').style.display = 'block';
+    try {
+      // 2. Insert record into PostgreSQL database
+      const { data, error } = await supabase
+        .from('orders')
+        .insert([orderPayload]);
 
-    // Open WhatsApp notification to store owner (replace number)
-    setTimeout(() => {
-      window.open(`https://wa.me/8801615396654?text=${msg}`, '_blank');
-    }, 800);
+      if (error) throw error;
+
+      // 3. Keep your original operational UI update flow
+      const cartSummary = cart.length > 0
+        ? cart.map(i => i.name + ' ৳' + i.price).join(', ')
+        : tier;
+
+      const msg = encodeURIComponent(
+        `🛍 New CURIO Order Record Saved!\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nDelivery Area: ${area}\nOrder Type: ${tier}\nMode: ${mode}\nCart: ${cartSummary}\nTotal: ৳${total}\nGift: ${gift}\nNotes: ${notes || 'None'}`
+      );
+
+      document.getElementById('orderForm').style.display = 'none';
+      document.getElementById('orderSuccess').style.display = 'block';
+
+      // Clear cart memory safely on database success
+      cart = [];
+      updateCartUI();
+
+      // 4. Fire the WhatsApp redirection line
+      setTimeout(() => {
+        window.open(`https://wa.me/8801615396654?text=${msg}`, '_blank');
+      }, 800);
+
+    } catch (err) {
+      console.error('Error saving your order:', err.message);
+      alert('Something went wrong processing your order locally. Please checkout via WhatsApp button directly!');
+    }
   }
 
   // ── CONTACT SUBMISSION ──
