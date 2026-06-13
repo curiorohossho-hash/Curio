@@ -1248,7 +1248,7 @@
 
 <!-- CART OVERLAY -->
 <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
-<div class="cart-drawer" id="cartDrawer">
+<div class="cart-drawer" id="cartDrawer" aria-hidden="true">
   <div class="cart-drawer-header">
     <div class="cart-drawer-title">Your Mystery Haul</div>
     <button class="cart-close" onclick="closeCart()">✕</button>
@@ -1265,7 +1265,7 @@
 
 <!-- NOTIFY MODAL -->
 <div class="notify-overlay" id="notifyOverlay" onclick="closeNotify()"></div>
-<div class="notify-modal" id="notifyModal" role="dialog" aria-modal="true" aria-labelledby="notifyTitle">
+<div class="notify-modal" id="notifyModal" role="dialog" aria-modal="true" aria-labelledby="notifyTitle" aria-hidden="true">
   <button class="notify-close" onclick="closeNotify()">✕</button>
   <h3 class="notify-title" id="notifyTitle">Notify me</h3>
   <p class="notify-desc">Enter your WhatsApp number and we'll message you when it's available.</p>
@@ -2642,18 +2642,61 @@
     _supabaseClient = null;
   }
 
+  // Simple HTML escaper used across the app
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   // ── CART STATE ──
+  // Cart persistence key
+  const CART_STORAGE_KEY = 'curio_cart_v1';
   let cart = [];
+  let lastRemoved = null;
+  let undoTimeout = null;
+  let _prevFocus = null;
+  let cartKeyHandler = null;
+  let notifyKeyHandler = null;
+
+  function saveCart() {
+    try { localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart)); } catch (e) { console.warn('Could not persist cart', e); }
+  }
+
+  function loadCart() {
+    try {
+      const raw = localStorage.getItem(CART_STORAGE_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    } catch (e) { console.warn('Failed to load cart', e); }
+    return [];
+  }
+
+  // Initialize cart from storage
+  cart = loadCart();
 
   function addToCart(name, price, emoji) {
-    cart.push({ name, price, emoji, id: Date.now() });
+    const item = { name, price, emoji, id: Date.now() };
+    cart.push(item);
+    saveCart();
     updateCartUI();
     openCart();
   }
 
   function removeFromCart(id) {
-    cart = cart.filter(i => i.id !== id);
+    // Find and remove, but allow undo
+    const idx = cart.findIndex(i => i.id === id);
+    if (idx === -1) return;
+    lastRemoved = cart[idx];
+    cart.splice(idx, 1);
+    saveCart();
     updateCartUI();
+    showUndoBanner(lastRemoved);
   }
 
   function updateCartUI() {
@@ -2707,13 +2750,79 @@
     }
   }
 
-  function openCart() {
-    document.getElementById('cartDrawer').classList.add('open');
-    document.getElementById('cartOverlay').classList.add('open');
+  // Undo banner
+  function showUndoBanner(item) {
+    let banner = document.getElementById('undoBanner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'undoBanner';
+      banner.style.position = 'fixed';
+      banner.style.left = '1rem';
+      banner.style.bottom = '1rem';
+      banner.style.background = 'rgba(26,18,8,0.9)';
+      banner.style.color = '#fff';
+      banner.style.padding = '0.75rem 1rem';
+      banner.style.borderRadius = '6px';
+      banner.style.boxShadow = '0 6px 18px rgba(0,0,0,0.2)';
+      banner.style.zIndex = 10000;
+      document.body.appendChild(banner);
+    }
+    banner.innerHTML = `<span style="margin-right:10px;">Removed ${escapeHtml(item.name)}</span><button id="undoBtn" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:#fff;padding:4px 8px;border-radius:4px;cursor:pointer">Undo</button>`;
+    const undoBtn = document.getElementById('undoBtn');
+    undoBtn.onclick = () => {
+      if (lastRemoved) {
+        cart.push(lastRemoved);
+        saveCart();
+        updateCartUI();
+        lastRemoved = null;
+      }
+      clearUndoBanner();
+    };
+    clearTimeout(undoTimeout);
+    undoTimeout = setTimeout(() => { clearUndoBanner(); lastRemoved = null; }, 6000);
   }
+
+  function clearUndoBanner() {
+    const banner = document.getElementById('undoBanner');
+    if (banner) banner.remove();
+    clearTimeout(undoTimeout);
+    undoTimeout = null;
+  }
+
+  function openCart() {
+    const drawer = document.getElementById('cartDrawer');
+    const overlay = document.getElementById('cartOverlay');
+    _prevFocus = document.activeElement;
+    drawer.classList.add('open');
+    overlay.classList.add('open');
+    drawer.setAttribute('aria-hidden', 'false');
+
+    // Focus first interactive element in drawer
+    const focusables = drawer.querySelectorAll('button,a,input,select,textarea,[tabindex]:not([tabindex="-1"])');
+    if (focusables.length) focusables[0].focus();
+
+    // Keyboard handling: Escape to close, basic focus trap
+    cartKeyHandler = function(e) {
+      if (e.key === 'Escape') { closeCart(); }
+      if (e.key === 'Tab') {
+        const list = Array.from(focusables);
+        if (list.length === 0) return;
+        const idx = list.indexOf(document.activeElement);
+        if (e.shiftKey && idx === 0) { e.preventDefault(); list[list.length - 1].focus(); }
+        else if (!e.shiftKey && idx === list.length - 1) { e.preventDefault(); list[0].focus(); }
+      }
+    };
+    document.addEventListener('keydown', cartKeyHandler);
+  }
+
   function closeCart() {
-    document.getElementById('cartDrawer').classList.remove('open');
-    document.getElementById('cartOverlay').classList.remove('open');
+    const drawer = document.getElementById('cartDrawer');
+    const overlay = document.getElementById('cartOverlay');
+    drawer.classList.remove('open');
+    overlay.classList.remove('open');
+    drawer.setAttribute('aria-hidden', 'true');
+    if (cartKeyHandler) { document.removeEventListener('keydown', cartKeyHandler); cartKeyHandler = null; }
+    if (_prevFocus && typeof _prevFocus.focus === 'function') { _prevFocus.focus(); }
   }
 
   // ── FILTER SYSTEM ──
@@ -2763,6 +2872,8 @@
   }
 
   async function fetchAndRenderCatalog() {
+    // uses global escapeHtml
+
     if (!_supabaseClient) {
       console.warn('Supabase client not initialized. Cannot pull live products.');
       return;
@@ -2785,42 +2896,44 @@
       if (indivGrid) indivGrid.innerHTML = '';
 
       fetchedProducts.forEach(product => {
+        const esc = s => escapeHtml(s || '');
         const hasImage = product.image_url && product.image_url.trim() !== '';
-        const imageMediaHtml = hasImage
-          ? `<img src="${product.image_url.trim()}" alt="${product.name}" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0; z-index:1;">`
-          : `<div class="product-img-emoji" style="position:relative; z-index:2;">${product.emoji || '🎁'}</div>`;
+
+        const imageHtml = hasImage
+          ? `<img src="${escapeHtml(product.image_url.trim())}" alt="${esc(product.name)}" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0; z-index:1;">`
+          : `<div class="product-img-emoji" style="position:relative; z-index:2;">${escapeHtml(product.emoji || '🎁')}</div>`;
 
         const discountBadge = product.old_price ? `<span class="price-badge">30% OFF</span>` : '';
-        const oldPriceHtml = product.old_price ? `<span class="price-old">৳${product.old_price}</span>` : '';
+        const oldPriceHtml = product.old_price ? `<span class="price-old">৳${escapeHtml(product.old_price)}</span>` : '';
         const isItemAvailable = product.in_stock === true || product.in_stock === 'true' || product.in_stock == 1;
 
         let actionButtonHtml = '';
         if (isItemAvailable) {
           if (product.category === 'Mystery Boxes' || product.category === 'Signature') {
-            actionButtonHtml = `<button class="btn-add" onclick="addToCart('${product.name}', ${product.price}, '${product.emoji || '🎁'}')">Add to Cart</button>`;
+            actionButtonHtml = `<button class="btn-add" onclick="addToCart('${escapeHtml(product.name)}', ${product.price}, '${escapeHtml(product.emoji || '🎁')}')">Add to Cart</button>`;
           } else {
             const fullIndivName = product.variant_name ? `${product.name} (${product.variant_name})` : product.name;
-            actionButtonHtml = `<button class="btn-add-indiv" onclick="addToCart('${fullIndivName}', ${product.price}, '${product.emoji || '💍'}')">Add to Cart</button>`;
+            actionButtonHtml = `<button class="btn-add-indiv" onclick="addToCart('${escapeHtml(fullIndivName)}', ${product.price}, '${escapeHtml(product.emoji || '💍')}')">Add to Cart</button>`;
           }
         } else {
-          actionButtonHtml = `<button class="btn-notify" style="width:100%; cursor:pointer;" onclick="notifyMe('${product.name}')">Out of Stock — Notify Me</button>`;
+          actionButtonHtml = `<button class="btn-notify" style="width:100%; cursor:pointer;" onclick="notifyMe('${escapeHtml(product.name)}')">Out of Stock — Notify Me</button>`;
         }
 
-        const tagsHtml = (product.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
-        const priceNew = `<span class="price-new">৳${product.price}</span>`;
+        const tagsHtml = (product.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
+        const priceNew = `<span class="price-new">৳${escapeHtml(product.price)}</span>`;
 
         if (product.category === 'Mystery Boxes') {
           if (boxesGrid) {
             boxesGrid.innerHTML += `
-              <div class="product-card" data-mode="${product.type || 'all'}">
+              <div class="product-card" data-mode="${escapeHtml(product.type || 'all')}">
                 <div class="product-img" style="position:relative;">
                   <div class="product-img-bg" style="background: linear-gradient(135deg, #EDD5B0, #D4A574); opacity: 0.35;"></div>
-                  ${imageMediaHtml}
+                  ${imageHtml}
                 </div>
-                <div class="product-tier">${product.name} · ${product.type || 'Package'}</div>
+                <div class="product-tier">${esc(product.name)} · ${escapeHtml(product.type || 'Package')}</div>
                 <div class="product-info">
-                  <div class="product-name">${product.name}</div>
-                  <p class="product-desc">${product.description || ''}</p>
+                  <div class="product-name">${esc(product.name)}</div>
+                  <p class="product-desc">${esc(product.description || '')}</p>
                   <div class="product-pricing">${priceNew}${oldPriceHtml}${discountBadge}</div>
                   <div class="product-tags">${tagsHtml}</div>
                   <div class="product-actions" style="display:flex; gap:0.6rem; width:100%;">${actionButtonHtml}</div>
@@ -2830,15 +2943,15 @@
         } else if (product.category === 'Signature') {
           if (signatureGrid) {
             signatureGrid.innerHTML += `
-              <div class="product-card" data-mode="${product.type || 'all'}">
+              <div class="product-card" data-mode="${escapeHtml(product.type || 'all')}">
                 <div class="product-img" style="position:relative;">
                   <div class="product-img-bg" style="background: linear-gradient(135deg, #95772955, #C4873A88); opacity:0.35;"></div>
-                  ${imageMediaHtml}
+                  ${imageHtml}
                 </div>
-                <div class="product-tier">${product.name} · ${product.type || 'Collection'}</div>
+                <div class="product-tier">${esc(product.name)} · ${escapeHtml(product.type || 'Collection')}</div>
                 <div class="product-info">
-                  <div class="product-name">${product.name}</div>
-                  <p class="product-desc">${product.description || ''}</p>
+                  <div class="product-name">${esc(product.name)}</div>
+                  <p class="product-desc">${esc(product.description || '')}</p>
                   <div class="product-pricing">${priceNew}${oldPriceHtml}</div>
                   <div class="product-tags">${tagsHtml}</div>
                   <div class="product-actions" style="width:100%;">${actionButtonHtml}</div>
@@ -2846,22 +2959,22 @@
               </div>`;
           }
         } else {
-          const variantLabel = product.variant_name ? `<div class="indiv-variant">${product.variant_name}</div>` : '';
+          const variantLabel = product.variant_name ? `<div class="indiv-variant">${escapeHtml(product.variant_name)}</div>` : '';
           const discountLabel = product.old_price ? `<span class="indiv-discount">30% OFF</span>` : '';
-          const oldIndivPrice = product.old_price ? `<span class="indiv-price-old">৳${product.old_price}</span>` : '';
+          const oldIndivPrice = product.old_price ? `<span class="indiv-price-old">৳${escapeHtml(product.old_price)}</span>` : '';
 
           if (indivGrid) {
             indivGrid.innerHTML += `
-              <div class="indiv-card" data-cat="${product.category}">
+              <div class="indiv-card" data-cat="${escapeHtml(product.category)}">
                 <div class="indiv-img" style="position:relative;">
                   <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B0,#C4873A44); opacity:0.5;"></div>
-                  ${imageMediaHtml}
+                  ${imageHtml}
                 </div>
-                <div class="indiv-cat-badge">${product.category}</div>
+                <div class="indiv-cat-badge">${escapeHtml(product.category)}</div>
                 <div class="indiv-info">
                   ${variantLabel}
-                  <div class="indiv-name">${product.name}</div>
-                  <p class="indiv-tagline">${product.tagline || ''}</p>
+                  <div class="indiv-name">${esc(product.name)}</div>
+                  <p class="indiv-tagline">${esc(product.tagline || '')}</p>
                   <div class="indiv-pricing">${priceNew}${oldIndivPrice}${discountLabel}</div>
                   <div class="product-actions" style="width:100%;">${actionButtonHtml}</div>
                 </div>
@@ -2891,12 +3004,39 @@
     document.getElementById('notifyTitle').textContent = 'Notify me about ' + product;
     document.getElementById('notifyPhone').value = '';
     document.getElementById('notifySuccess').style.display = 'none';
-    document.getElementById('notifyOverlay').classList.add('open');
-    document.getElementById('notifyModal').classList.add('open');
+    const overlay = document.getElementById('notifyOverlay');
+    const modal = document.getElementById('notifyModal');
+    _prevFocus = document.activeElement;
+    overlay.classList.add('open');
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+
+    // focus the phone input
+    const phoneInput = document.getElementById('notifyPhone');
+    if (phoneInput) phoneInput.focus();
+
+    // keyboard handling for modal
+    const focusables = modal.querySelectorAll('button,a,input,select,textarea,[tabindex]:not([tabindex="-1"])');
+    notifyKeyHandler = function(e) {
+      if (e.key === 'Escape') { closeNotify(); }
+      if (e.key === 'Tab') {
+        const list = Array.from(focusables);
+        if (list.length === 0) return;
+        const idx = list.indexOf(document.activeElement);
+        if (e.shiftKey && idx === 0) { e.preventDefault(); list[list.length - 1].focus(); }
+        else if (!e.shiftKey && idx === list.length - 1) { e.preventDefault(); list[0].focus(); }
+      }
+    };
+    document.addEventListener('keydown', notifyKeyHandler);
   }
   function closeNotify() {
-    document.getElementById('notifyOverlay').classList.remove('open');
-    document.getElementById('notifyModal').classList.remove('open');
+    const overlay = document.getElementById('notifyOverlay');
+    const modal = document.getElementById('notifyModal');
+    overlay.classList.remove('open');
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    if (notifyKeyHandler) { document.removeEventListener('keydown', notifyKeyHandler); notifyKeyHandler = null; }
+    if (_prevFocus && typeof _prevFocus.focus === 'function') { _prevFocus.focus(); }
   }
   function submitNotify() {
     const phone = document.getElementById('notifyPhone').value.trim();
