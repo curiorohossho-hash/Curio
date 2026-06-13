@@ -2427,7 +2427,7 @@
     </div>
 
     <div>
-      <div class="order-form" id="orderForm">
+      <form class="order-form" id="orderForm" onsubmit="submitOrder(event)">
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Your Name *</label>
@@ -2490,8 +2490,8 @@
           <label class="form-label">Any notes or preferences?</label>
           <textarea class="form-textarea" id="custNotes" placeholder="Colour preferences, allergies, special requests..."></textarea>
         </div>
-        <button class="submit-btn" onclick="submitOrder()">✦ Place My Order</button>
-      </div>
+        <button type="submit" class="submit-btn">✦ Place My Order</button>
+      </form>
 
       <div class="order-success" id="orderSuccess">
         <div class="tick">🎉</div>
@@ -2724,7 +2724,7 @@
             <div class="drawer-item-name">${item.name}</div>
             <div class="drawer-item-price">৳${item.price.toLocaleString()}</div>
           </div>
-          <button class="drawer-remove" onclick="removeFromCart(${item.id})">✕</button>
+          <button class="drawer-remove" onclick="removeFromCart('${item.id}')">✕</button>
         </div>
       `).join('');
       const total = cart.reduce((s, i) => s + i.price, 0);
@@ -2732,7 +2732,6 @@
       footerEl.style.display = 'block';
     }
 
-    // Order Section Elements
     const listEl = document.getElementById('cartItemsList');
     const emptyMsg = document.getElementById('cartEmptyMsg');
     const totalRow = document.getElementById('cartTotalRow');
@@ -2748,12 +2747,37 @@
         <div class="cart-item">
           <span class="cart-item-name">${item.emoji} ${item.name}</span>
           <span class="cart-item-price">৳${item.price.toLocaleString()}</span>
-          <button class="cart-item-remove" onclick="removeFromCart(${item.id})">✕</button>
+          <button class="cart-item-remove" onclick="removeFromCart('${item.id}')">✕</button>
         </div>
       `).join('');
       totalRow.style.display = 'flex';
       document.getElementById('cartTotalDisplay').textContent = '৳' + total.toLocaleString();
     }
+
+    syncOrderFormWithCart();
+  }
+
+  function syncOrderFormWithCart() {
+    const tierSelect = document.getElementById('boxTier');
+    const modeSelect = document.getElementById('boxMode');
+    if (!tierSelect || !modeSelect) return;
+
+    const firstBox = cart.find(item => /small|classic|mega|signature/i.test(item.name));
+    if (firstBox) {
+      const name = firstBox.name.toLowerCase();
+      if (name.includes('signature')) tierSelect.value = 'Signature Box (৳1,999)';
+      else if (name.includes('mega')) tierSelect.value = 'Mega Box (৳1,199)';
+      else if (name.includes('classic')) tierSelect.value = 'Classic Box (৳799)';
+      else if (name.includes('small')) tierSelect.value = 'Small Box (৳499)';
+    } else if (cart.length > 0) {
+      tierSelect.value = 'Normal Order (Individual Items)';
+    }
+
+    const hasScoop = cart.some(item => /scoop/i.test(item.name));
+    const hasPackage = cart.some(item => /package/i.test(item.name));
+    if (hasScoop) modeSelect.value = 'Scoop (Live Video)';
+    else if (hasPackage) modeSelect.value = 'Package (Curated)';
+    else if (cart.length > 0) modeSelect.value = 'Normal Order (Pick & Ship)';
   }
 
   // Undo banner
@@ -3081,7 +3105,10 @@
   }
 
   // ── CORE TRANSACTION GATEWAY (SUPABASE) ──
-  async function submitOrder() {
+  async function submitOrder(event) {
+    if (event && typeof event.preventDefault === 'function') {
+      event.preventDefault();
+    }
     const name = document.getElementById('custName').value.trim();
     const phone = document.getElementById('custPhone').value.trim();
     const address = document.getElementById('custAddress').value.trim();
