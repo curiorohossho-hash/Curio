@@ -2700,7 +2700,9 @@
 
   function removeFromCart(id) {
     // Find and remove, but allow undo
-    const idx = cart.findIndex(i => i.id === id);
+    // IDs may be stored as numbers (Date.now()) but rendered into markup as strings.
+    // Normalize both sides to string for a reliable comparison.
+    const idx = cart.findIndex(i => String(i.id) === String(id));
     if (idx === -1) return;
     lastRemoved = cart[idx];
     cart.splice(idx, 1);
