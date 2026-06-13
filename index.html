@@ -713,6 +713,9 @@
 
   .btn-notify {
     width: 100%;
+    flex: 1 1 100%;
+    min-width: 0;
+    white-space: normal;
     background: transparent;
     border: 1px solid var(--amber);
     color: var(--brown);
@@ -2668,6 +2671,7 @@
   let _prevFocus = null;
   let cartKeyHandler = null;
   let notifyKeyHandler = null;
+  let isSubmitting = false;
 
   function saveCart() {
     try { localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart)); } catch (e) { console.warn('Could not persist cart', e); }
@@ -3109,6 +3113,19 @@
     if (event && typeof event.preventDefault === 'function') {
       event.preventDefault();
     }
+    if (isSubmitting) {
+      return;
+    }
+
+    const submitBtn = document.querySelector('#orderForm button[type="submit"]');
+    const originalBtnText = submitBtn ? submitBtn.textContent : '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+      submitBtn.setAttribute('aria-busy', 'true');
+    }
+    isSubmitting = true;
+
     const name = document.getElementById('custName').value.trim();
     const phone = document.getElementById('custPhone').value.trim();
     const address = document.getElementById('custAddress').value.trim();
@@ -3116,6 +3133,12 @@
     const transactionId = document.getElementById('transactionId').value.trim();
 
     if (!name || !phone || !address) {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+        submitBtn.removeAttribute('aria-busy');
+      }
+      isSubmitting = false;
       alert('Please fill in your name, phone, and address.');
       return;
     }
@@ -3168,11 +3191,11 @@
         `🛍 New CURIO Order!\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nArea: ${area}\nType: ${tier}\nMode: ${mode}\nCart: ${cartSummary}\nTotal: ৳${total}\nGift Wrapping: ${gift}\nNotes: ${notes || 'None'}`
       );
 
-      // Mutate UI view
+      // Mutate UI view after the cloud transaction is confirmed.
       document.getElementById('orderForm').style.display = 'none';
       document.getElementById('orderSuccess').style.display = 'block';
 
-      // Flawlessly drain active cart cache
+      // Flawlessly drain active cart cache only after the success view is visible.
       cart = [];
       updateCartUI();
 
@@ -3182,6 +3205,13 @@
     } catch (err) {
       console.error('Critical transactional network error logged:', err);
       alert('We had trouble saving your order automatically. Please contact us on WhatsApp if you want to confirm your order manually.');
+    } finally {
+      isSubmitting = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+        submitBtn.removeAttribute('aria-busy');
+      }
     }
   }
 
