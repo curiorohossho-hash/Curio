@@ -113,6 +113,9 @@
     justify-content: center;
     font-size: 0.6rem;
   }
+  body.modal-open {
+    overflow: hidden;
+  }
 
   /* ── HERO ── */
   #hero {
@@ -971,7 +974,10 @@
     align-items: start;
   }
 
-  .contact-info { }
+  .contact-info {
+    display: grid;
+    gap: 1.5rem;
+  }
   .contact-info .section-title { margin-bottom: 2rem; }
 
   .contact-details {
@@ -1247,11 +1253,11 @@
 <body>
 
 <!-- CART OVERLAY -->
-<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
-<div class="cart-drawer" id="cartDrawer" aria-hidden="true">
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()" aria-hidden="true"></div>
+<div class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartDrawerTitle" aria-hidden="true" tabindex="-1">
   <div class="cart-drawer-header">
-    <div class="cart-drawer-title">Your Mystery Haul</div>
-    <button class="cart-close" onclick="closeCart()">✕</button>
+    <div class="cart-drawer-title" id="cartDrawerTitle">Your Mystery Haul</div>
+    <button class="cart-close" onclick="closeCart()" aria-label="Close cart">✕</button>
   </div>
   <div id="drawerItems"></div>
   <div class="drawer-footer" id="drawerFooter" style="display:none">
@@ -1264,9 +1270,9 @@
 </div>
 
 <!-- NOTIFY MODAL -->
-<div class="notify-overlay" id="notifyOverlay" onclick="closeNotify()"></div>
-<div class="notify-modal" id="notifyModal" role="dialog" aria-modal="true" aria-labelledby="notifyTitle" aria-hidden="true">
-  <button class="notify-close" onclick="closeNotify()">✕</button>
+<div class="notify-overlay" id="notifyOverlay" onclick="closeNotify()" aria-hidden="true"></div>
+<div class="notify-modal" id="notifyModal" role="dialog" aria-modal="true" aria-labelledby="notifyTitle" aria-hidden="true" tabindex="-1">
+  <button class="notify-close" onclick="closeNotify()" aria-label="Close notification dialog">✕</button>
   <h3 class="notify-title" id="notifyTitle">Notify me</h3>
   <p class="notify-desc">Enter your WhatsApp number and we'll message you when it's available.</p>
   <input class="form-input" id="notifyPhone" placeholder="01X-XXXXXXXXX" />
@@ -1288,7 +1294,7 @@
     <li><a href="#order">Order</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
-  <button class="nav-cart" onclick="openCart()">
+  <button id="cartToggleButton" class="nav-cart" onclick="openCart()" aria-expanded="false" aria-controls="cartDrawer">
     🛍 Cart <span class="cart-count" id="cartCount">0</span>
   </button>
 </nav>
@@ -1353,17 +1359,17 @@
     <div class="how-step">
       <div class="step-num">01</div>
       <div class="step-title">Choose Your Box</div>
-      <p class="step-desc">Pick from three tiers — Small, Classic, or Mega — based on how deep into the mystery you want to go, or go all-in with our Signature box. More of a "just send me that one item" person? Skip the mystery entirely with a Normal Order.</p>
+      <p class="step-desc">Pick Small, Classic, Mega, or go big with Signature. Want one specific item? Choose Normal Order and skip the mystery.</p>
     </div>
     <div class="how-step">
       <div class="step-num">02</div>
       <div class="step-title">Pick Your Mode</div>
-      <p class="step-desc">Go with <strong>Scoop</strong> to watch us pick your items live on video — you choose in real time. Go with <strong>Package</strong> for a fully curated surprise delivered to your door. Or choose <strong>Normal Order</strong> if you already know exactly what you want.</p>
+      <p class="step-desc">Scoop: watch us pick live on video, you choose in real time. Package: get a curated surprise. Normal Order: get exactly what you ordered.</p>
     </div>
     <div class="how-step">
       <div class="step-num">03</div>
       <div class="step-title">Easy Payment, Easy Delivery</div>
-      <p class="step-desc">Inside Dhaka? Pay cash when your order arrives at your doorstep plus ৳70 delivery charge — no advance needed. Outside Dhaka? We just need ৳130 advance delivery charge via Bkash or Nagad to ship your order, then pay the rest on arrival.</p>
+      <p class="step-desc">Inside Dhaka: pay cash on delivery, plus ৳70 delivery charge. No advance needed. Outside Dhaka: pay ৳130 advance via Bkash or Nagad, then pay the rest on arrival.</p>
     </div>
   </div>
 </section>
@@ -2792,14 +2798,18 @@
   function openCart() {
     const drawer = document.getElementById('cartDrawer');
     const overlay = document.getElementById('cartOverlay');
+    const cartToggle = document.getElementById('cartToggleButton');
     _prevFocus = document.activeElement;
     drawer.classList.add('open');
     overlay.classList.add('open');
     drawer.setAttribute('aria-hidden', 'false');
+    if (cartToggle) cartToggle.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('modal-open');
 
     // Focus first interactive element in drawer
     const focusables = drawer.querySelectorAll('button,a,input,select,textarea,[tabindex]:not([tabindex="-1"])');
     if (focusables.length) focusables[0].focus();
+    else drawer.focus();
 
     // Keyboard handling: Escape to close, basic focus trap
     cartKeyHandler = function(e) {
@@ -2818,9 +2828,12 @@
   function closeCart() {
     const drawer = document.getElementById('cartDrawer');
     const overlay = document.getElementById('cartOverlay');
+    const cartToggle = document.getElementById('cartToggleButton');
     drawer.classList.remove('open');
     overlay.classList.remove('open');
     drawer.setAttribute('aria-hidden', 'true');
+    if (cartToggle) cartToggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('modal-open');
     if (cartKeyHandler) { document.removeEventListener('keydown', cartKeyHandler); cartKeyHandler = null; }
     if (_prevFocus && typeof _prevFocus.focus === 'function') { _prevFocus.focus(); }
   }
@@ -3010,13 +3023,16 @@
     overlay.classList.add('open');
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
 
     // focus the phone input
     const phoneInput = document.getElementById('notifyPhone');
+    const focusables = modal.querySelectorAll('button,a,input,select,textarea,[tabindex]:not([tabindex="-1"])');
     if (phoneInput) phoneInput.focus();
+    else if (focusables.length) focusables[0].focus();
+    else modal.focus();
 
     // keyboard handling for modal
-    const focusables = modal.querySelectorAll('button,a,input,select,textarea,[tabindex]:not([tabindex="-1"])');
     notifyKeyHandler = function(e) {
       if (e.key === 'Escape') { closeNotify(); }
       if (e.key === 'Tab') {
@@ -3035,6 +3051,7 @@
     overlay.classList.remove('open');
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
     if (notifyKeyHandler) { document.removeEventListener('keydown', notifyKeyHandler); notifyKeyHandler = null; }
     if (_prevFocus && typeof _prevFocus.focus === 'function') { _prevFocus.focus(); }
   }
