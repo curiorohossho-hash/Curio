@@ -3132,21 +3132,27 @@
     const area = document.getElementById('deliveryArea').value;
     const transactionId = document.getElementById('transactionId').value.trim();
 
-    if (!name || !phone || !address) {
+    const resetSubmitState = () => {
+      isSubmitting = false;
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.textContent = originalBtnText;
         submitBtn.removeAttribute('aria-busy');
       }
-      isSubmitting = false;
+    };
+
+    if (!name || !phone || !address) {
+      resetSubmitState();
       alert('Please fill in your name, phone, and address.');
       return;
     }
     if (!area) {
+      resetSubmitState();
       alert('Please select your delivery area (Inside or Outside Dhaka).');
       return;
     }
     if (area.includes('Outside Dhaka') && !transactionId) {
+      resetSubmitState();
       alert('Please provide your Bkash or Nagad transaction ID for outside Dhaka delivery.');
       return;
     }
