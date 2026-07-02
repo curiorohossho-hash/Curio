@@ -967,6 +967,72 @@
     line-height: 1.8;
   }
 
+  /* ── REVIEWS ── */
+  #reviews {
+    padding: 7rem 6rem;
+    background: var(--cream);
+  }
+  .reviews-layout {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  .reviews-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .review-card {
+    background: var(--paper);
+    border: 1px solid rgba(196,135,58,0.15);
+    padding: 1.5rem;
+    border-radius: 8px;
+  }
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  .review-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--brown);
+  }
+  .review-date {
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--amber);
+    opacity: 0.75;
+  }
+  .review-text {
+    font-size: 0.78rem;
+    line-height: 1.85;
+    color: var(--brown);
+    opacity: 0.75;
+  }
+  .review-form-panel {
+    background: var(--paper);
+    border: 1px solid rgba(196,135,58,0.15);
+    padding: 2rem;
+    border-radius: 8px;
+  }
+  .review-form-panel .submit-btn {
+    width: auto;
+  }
+  .review-empty {
+    padding: 1.5rem;
+    color: var(--brown);
+    opacity: 0.65;
+    font-size: 0.82rem;
+    background: rgba(250,247,240,0.85);
+    border-radius: 6px;
+    border: 1px dashed rgba(196,135,58,0.2);
+  }
+
   /* ── CONTACT ── */
   #contact {
     padding: 7rem 6rem;
@@ -1534,6 +1600,31 @@
 
   </div>
 
+</section>
+
+<section id="reviews">
+  <div class="section-label">Customer Love</div>
+  <h2 class="section-title">Share your <em>review</em>.</h2>
+  <div class="reviews-layout">
+    <div class="reviews-grid" id="reviewsGrid"></div>
+    <div class="review-form-panel">
+      <form id="reviewForm" class="order-form" onsubmit="submitReview(event)">
+        <div class="form-group">
+          <label class="form-label" for="reviewerName">Your Name</label>
+          <input class="form-input" type="text" id="reviewerName" placeholder="Name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reviewText">Your Review</label>
+          <textarea class="form-textarea" id="reviewText" placeholder="Tell us what you loved..." required minlength="50" maxlength="5000"></textarea>
+          <p class="form-note">Please write between 50 and 5000 characters.</p>
+        </div>
+        <button type="submit" class="submit-btn">Submit Review</button>
+      </form>
+      <div id="reviewsEmpty" class="review-empty" style="display:none; margin-top:1.5rem;">
+        No reviews yet — be the first to share your experience.
+      </div>
+    </div>
+  </div>
 </section>
 
 <div class="promo-banner">
@@ -2665,13 +2756,151 @@
   // ── CART STATE ──
   // Cart persistence key
   const CART_STORAGE_KEY = 'curio_cart_v1';
+  const REVIEWS_STORAGE_KEY = 'curio_reviews_v1';
+  const REVIEWS_TABLE = 'reviews';
   let cart = [];
+  let reviews = [];
   let lastRemoved = null;
   let undoTimeout = null;
   let _prevFocus = null;
   let cartKeyHandler = null;
   let notifyKeyHandler = null;
   let isSubmitting = false;
+
+  async function loadReviews() {
+    if (_supabaseClient) {
+      try {
+        const { data, error } = await _supabaseClient
+          .from(REVIEWS_TABLE)
+          .select('id,name,text,created_at')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        if (Array.isArray(data) && data.length > 0) {
+          reviews = data.map(item => ({
+            id: item.id || Date.now().toString(),
+            name: item.name || 'Anonymous',
+            text: item.text || '',
+            date: item.created_at
+              ? new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+              : ''
+          }));
+          return;
+        }
+      } catch (e) {
+        console.warn('Failed to load reviews from Supabase:', e);
+      }
+    }
+
+    try {
+      const raw = localStorage.getItem(REVIEWS_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          reviews = parsed;
+          return;
+        }
+      }
+    } catch (e) { console.warn('Failed to load reviews', e); }
+    reviews = [
+      { id: 'sample-1', name: 'Jannatul Ferdous Mina', text: 'I loved the surprise box! Every item felt curated just for me.', date: 'Jul 2026' },
+      { id: 'sample-2', name: 'Riya Sultana', text: 'Fast delivery, cute packaging, and the products were adorable.', date: 'Aug 2026' },
+      { id: 'sumayyah-1', name: 'Sumayyah Chowdhury Suha', text: 'I just got home and opened the parcel. I’m so happy with all the products, both the charm and necklace are so pretty!😭 And thank you so much for the gifts, one of the cutest parcels, loved every product!🫶🏻', date: 'Jul 2026' },
+      { id: 'rifah-1', name: 'Rifah Tasnia Rodela', text: 'Thank you soooo much. I really really loved everything!💐', date: 'Jul 2026' },
+      { id: 'shanchita-1', name: 'Shanchita Das', text: 'Yeppp!! I liked it so much..!!✨ Apu thank you onk shundor packaging chilo. Khub taratri peye gesii parcel ta!🤭', date: 'Jul 2026' },
+      { id: 'marium-1', name: 'Marium Tasneem', text: 'Porttekta jinish e must have product.. thank you so much for this.. sob kichu onk cute!🥰 Inshallah abar nibo', date: 'Jul 2026' }
+    ];
+    saveReviews();
+  }
+
+  async function saveReviewToBackend(review) {
+    if (!_supabaseClient) return;
+
+    const { data, error } = await _supabaseClient
+      .from(REVIEWS_TABLE)
+      .insert([{ name: review.name, text: review.text }])
+      .select('id,created_at');
+
+    if (error) throw error;
+    if (Array.isArray(data) && data.length > 0) {
+      review.id = data[0].id || review.id;
+      if (data[0].created_at) {
+        review.date = new Date(data[0].created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+    }
+  }
+
+  function saveReviews() {
+    try { localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(reviews)); } catch (e) { console.warn('Could not persist reviews', e); }
+  }
+
+  function renderReviews() {
+    const reviewsGrid = document.getElementById('reviewsGrid');
+    const reviewsEmpty = document.getElementById('reviewsEmpty');
+    if (!reviewsGrid || !reviewsEmpty) return;
+
+    if (reviews.length === 0) {
+      reviewsGrid.innerHTML = '';
+      reviewsEmpty.style.display = 'block';
+      return;
+    }
+
+    reviewsEmpty.style.display = 'none';
+    reviewsGrid.innerHTML = reviews.slice().reverse().map(review => `
+      <div class="review-card">
+        <div class="review-header">
+          <div class="review-name">${escapeHtml(review.name)}</div>
+          <div class="review-date">${escapeHtml(review.date || '')}</div>
+        </div>
+        <p class="review-text">${escapeHtml(review.text)}</p>
+      </div>
+    `).join('');
+  }
+
+  async function submitReview(event) {
+    if (event && typeof event.preventDefault === 'function') event.preventDefault();
+    const name = document.getElementById('reviewerName')?.value.trim();
+    const text = document.getElementById('reviewText')?.value.trim();
+    if (!name || !text) {
+      alert('Please enter both your name and review.');
+      return;
+    }
+
+    const review = {
+      id: Date.now().toString(),
+      name,
+      text,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    };
+
+    let backendSaved = false;
+    try {
+      if (_supabaseClient) {
+        await saveReviewToBackend(review);
+        backendSaved = true;
+      }
+    } catch (e) {
+      console.warn('Review save to Supabase failed, falling back to local storage.', e);
+      alert('Your review has been saved locally. It will appear on this browser, but may not be shared across all visitors until Supabase is connected correctly.');
+    }
+
+    reviews.unshift(review);
+    saveReviews();
+    renderReviews();
+    document.getElementById('reviewForm')?.reset();
+
+    if (backendSaved) {
+      const successBanner = document.createElement('div');
+      successBanner.style.marginTop = '1rem';
+      successBanner.style.padding = '1rem';
+      successBanner.style.background = '#E8F6EF';
+      successBanner.style.border = '1px solid #7AD7A8';
+      successBanner.style.borderRadius = '12px';
+      successBanner.textContent = 'Review submitted successfully to Supabase and added to the page.';
+      document.getElementById('reviewForm')?.appendChild(successBanner);
+      setTimeout(() => successBanner.remove(), 4000);
+    }
+  }
 
   function saveCart() {
     try { localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart)); } catch (e) { console.warn('Could not persist cart', e); }
@@ -3266,7 +3495,13 @@
   });
 
   // ── INITIAL RUN ──
-  updateCartUI();
+  async function initializeApp() {
+    await loadReviews();
+    renderReviews();
+    updateCartUI();
+  }
+
+  initializeApp();
 </script>
 </body>
 </html>
