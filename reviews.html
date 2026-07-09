@@ -137,10 +137,19 @@
     }
   }
 
-  window.addEventListener('load', () => {
-    if (typeof loadReviews === 'function') loadReviews();
-    if (typeof renderReviews === 'function') renderReviews();
-    if (typeof updateCartUI === 'function') updateCartUI();
+  window.addEventListener('load', async () => {
+    // 1. Wait completely for Supabase to finish downloading your 11 reviews
+    if (typeof loadReviews === 'function') {
+      await loadReviews();
+    }
+    // 2. Now that data is safely loaded, display them on the screen immediately
+    if (typeof renderReviews === 'function') {
+      renderReviews();
+    }
+    // 3. Update the cart counter
+    if (typeof updateCartUI === 'function') {
+      updateCartUI();
+    }
   });
 </script>
 
