@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CURIO রহস্য — Products</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAV + CART + NOTIFY (from partials-reference) -->
+<nav>
+  <a href="index.html" class="nav-logo">CURIO <span>রহস্য</span></a>
+  
+  <button class="menu-toggle" id="menuToggleButton" onclick="toggleMobileMenu()" aria-label="Toggle Navigation" aria-expanded="false">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </button>
+
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="products.html">Products</a></li>
+    <li><a href="reviews.html">Reviews</a></li>
+    <li><a href="order.html">Order</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <button id="cartToggleButton" class="nav-cart" onclick="openCart()" aria-expanded="false" aria-controls="cartDrawer">
+    🛍 Cart <span class="cart-count" id="cartCount">0</span>
+  </button>
+</nav>
+
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()" aria-hidden="true"></div>
+<div class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartDrawerTitle" aria-hidden="true" tabindex="-1">
+  <div class="cart-drawer-header">
+    <div class="cart-drawer-title" id="cartDrawerTitle">Your Mystery Haul</div>
+    <button class="cart-close" onclick="closeCart()" aria-label="Close cart">✕</button>
+  </div>
+  <div id="drawerItems"></div>
+  <div class="drawer-footer" id="drawerFooter" style="display:none">
+    <div class="drawer-total">
+      <span>Total</span>
+      <span class="drawer-total-val" id="drawerTotal">৳0</span>
+    </div>
+    <a href="order.html" class="btn-primary" style="display:block;text-align:center;width:100%;padding:1rem;" onclick="closeCart()">Proceed to Order</a>
+  </div>
+</div>
+
+<div class="notify-overlay" id="notifyOverlay" onclick="closeNotify()" aria-hidden="true"></div>
+<div class="notify-modal" id="notifyModal" role="dialog" aria-modal="true" aria-labelledby="notifyTitle" aria-hidden="true" tabindex="-1">
+  <button class="notify-close" onclick="closeNotify()" aria-label="Close notification dialog">✕</button>
+  <h3 class="notify-title" id="notifyTitle">Notify me</h3>
+  <p class="notify-desc">Enter your WhatsApp number and we'll message you when it's available.</p>
+  <input class="form-input" id="notifyPhone" type="tel" placeholder="01X-XXXXXXXXX" />
+  <!-- change this line in products.html -->
+<div id="notifySuccess" style="display:none;margin-top:1rem;color:var(--sage)">Thanks — opening WhatsApp now...</div>
+  <div style="margin-top:1rem;display:flex;gap:0.5rem;">
+    <button class="btn-primary" onclick="submitNotify()">Send</button>
+    <button class="btn-outline" onclick="closeNotify()">Cancel</button>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <div style="display:flex; justify-content:center; margin-bottom:2.5rem; padding:0 1.5rem;">
+    <input class="form-input" id="productSearch" type="text" placeholder="🔍 Search products by name..." style="max-width:500px; width:100%;" oninput="searchProducts(this.value)">
+  </div>
+
+  <div class="products-header">
+    <div>
+      <div class="section-label">Mystery Boxes</div>
+      <h2 class="section-title">Choose your <em>mystery.</em></h2>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" onclick="filterBoxes('all', this)">All</button>
+      <button class="mode-btn" onclick="filterBoxes('scoop', this)">Scoop</button>
+      <button class="mode-btn" onclick="filterBoxes('package', this)">Package</button>
+    </div>
+  </div>
+
+  <div class="products-grid" id="boxesGrid">
+    <!-- catalog will be rendered here by fetchAndRenderCatalog() -->
+  </div>
+</section>
+
+<!-- SIGNATURE -->
+<section id="signature">
+  <div class="section-label">Signature</div>
+  <h2 class="section-title">Curated for the <em>bold.</em></h2>
+  <div class="products-grid" id="signatureGrid">
+    <!-- signature products rendered by fetchAndRenderCatalog() -->
+  </div>
+</section>
+
+<!-- MODES -->
+<section id="modes">
+  <div class="modes-left">
+    <div class="section-label">Fulfilment</div>
+    <h2 class="section-title">Three ways to <em>shop</em> with us.</h2>
+    <p style="font-size:0.72rem;line-height:1.9;opacity:0.55;max-width:400px;">
+      Want the thrill of a surprise, or know exactly what you're after? Either way, we've got a mode for you — watch it unfold live, let us curate it, or just order what you see.
+    </p>
+  </div>
+  <div class="modes-right">
+    <div class="mode-card">
+      <div class="mode-icon">🎥</div>
+      <div class="mode-card-label">Mode 01</div>
+      <div class="mode-card-title">Scoop — Live Selection</div>
+      <p class="mode-card-desc">We hop on a video call or go live. You watch us pick items from our stash in real time. You guide us, you approve the final picks. It ships within 24 hours of the call.</p>
+    </div>
+    <div class="mode-card">
+      <div class="mode-icon">📦</div>
+      <div class="mode-card-label">Mode 02</div>
+      <div class="mode-card-title">Package — Curated Surprise</div>
+      <p class="mode-card-desc">Place your order and we handle everything. Our team curates a box themed to your tier, seals it with mystery tape, and delivers it to your door. Pay only when it arrives.</p>
+    </div>
+    <div class="mode-card">
+      <div class="mode-icon">🛍️</div>
+      <div class="mode-card-label">Mode 03</div>
+      <div class="mode-card-title">Normal Order — Pick &amp; Ship</div>
+      <p class="mode-card-desc">Already know what you want? Skip the mystery completely. Pick individual items straight from the catalogue and we'll pack and send exactly that — no surprises, just your picks.</p>
+    </div>
+  </div>
+</section>
+
+<!-- INDIVIDUAL -->
+<section id="individual">
+  <div class="indiv-header">
+    <div class="section-label" style="margin-bottom:0.6rem;">Shop Individual Items</div>
+    <h2 class="section-title" style="margin-bottom:2rem;">Or pick <em>exactly</em> what you want.</h2>
+
+    <div class="cat-tabs" id="catTabs">
+      <button class="cat-tab active" onclick="filterCat('all', this)">All</button>
+      <button class="cat-tab" onclick="filterCat('Jewelry', this)">Jewelry</button>
+      <button class="cat-tab" onclick="filterCat('Hair &amp; Bindis', this)">Hair &amp; Bindis</button>
+      <button class="cat-tab" onclick="filterCat('Character', this)">Character</button>
+      <button class="cat-tab" onclick="filterCat('Stationery', this)">Stationery</button>
+    </div>
+  </div>
+
+  <div class="indiv-grid" id="indivGrid">
+    <!-- individual items rendered by fetchAndRenderCatalog() -->
+  </div>
+</section>
+
+<!-- SCRIPTS: Supabase, shared.js, then page-only catalog/filter logic -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+<script>
+function filterBoxes(mode, btn) {
+  document.querySelectorAll('.mode-toggle .mode-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('#boxesGrid .product-card').forEach(card => {
+    card.style.display = (mode === 'all' || card.dataset.mode === mode) ? '' : 'none';
+  });
+}
+
+function filterCat(cat, btn) {
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.indiv-card').forEach(card => {
+    card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+  });
+}
+
+function searchProducts(query) {
+  const searchTerm = query.toLowerCase().trim();
+  document.querySelectorAll('#boxesGrid .product-card').forEach(card => {
+    const name = card.querySelector('.product-name')?.textContent.toLowerCase() || '';
+    const desc = card.querySelector('.product-desc')?.textContent.toLowerCase() || '';
+    const matches = name.includes(searchTerm) || desc.includes(searchTerm) || searchTerm === '';
+    card.style.display = matches ? '' : 'none';
+  });
+  document.querySelectorAll('#signature .product-card').forEach(card => {
+    const name = card.querySelector('.product-name')?.textContent.toLowerCase() || '';
+    const desc = card.querySelector('.product-desc')?.textContent.toLowerCase() || '';
+    const matches = name.includes(searchTerm) || desc.includes(searchTerm) || searchTerm === '';
+    card.style.display = matches ? '' : 'none';
+  });
+  document.querySelectorAll('.indiv-card').forEach(card => {
+    const name = card.querySelector('.indiv-name')?.textContent.toLowerCase() || '';
+    const variant = card.querySelector('.indiv-variant')?.textContent.toLowerCase() || '';
+    const tagline = card.querySelector('.indiv-tagline')?.textContent.toLowerCase() || '';
+    const matches = name.includes(searchTerm) || variant.includes(searchTerm) || tagline.includes(searchTerm) || searchTerm === '';
+    card.style.display = matches ? '' : 'none';
+  });
+}
+
+async function fetchAndRenderCatalog() {
+  // uses global escapeHtml
+
+  if (!_supabaseClient) {
+    console.warn('Supabase client not initialized. Cannot pull live products.');
+    return;
+  }
+
+  try {
+    const { data: fetchedProducts, error } = await _supabaseClient
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+
+    const boxesGrid = document.getElementById('boxesGrid');
+    const signatureGrid = document.querySelector('#signature .products-grid');
+    const indivGrid = document.getElementById('indivGrid');
+
+    if (boxesGrid) boxesGrid.innerHTML = '';
+    if (signatureGrid) signatureGrid.innerHTML = '';
+    if (indivGrid) indivGrid.innerHTML = '';
+
+    fetchedProducts.forEach(product => {
+      const esc = s => escapeHtml(s || '');
+      const hasImage = product.image_url && product.image_url.trim() !== '';
+
+      const imageHtml = hasImage
+        ? `<img src="${escapeHtml(product.image_url.trim())}" alt="${esc(product.name)}" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0; z-index:1;">`
+        : `<div class="product-img-emoji" style="position:relative; z-index:2;">${escapeHtml(product.emoji || '🎁')}</div>`;
+
+      const discountBadge = product.old_price ? `<span class="price-badge">30% OFF</span>` : '';
+      const isItemAvailable = product.in_stock === true || product.in_stock === 'true' || product.in_stock == 1;
+
+      let actionButtonHtml = '';
+      if (isItemAvailable) {
+        if (product.category === 'Mystery Boxes' || product.category === 'Signature') {
+          actionButtonHtml = `<button class="btn-add" onclick="addToCart('${escapeHtml(product.name)}', ${product.price}, '${escapeHtml(product.emoji || '🎁')}')">Add to Cart</button>`;
+        } else {
+          const fullIndivName = product.variant_name ? `${product.name} (${product.variant_name})` : product.name;
+          actionButtonHtml = `<button class="btn-add-indiv" onclick="addToCart('${escapeHtml(fullIndivName)}', ${product.price}, '${escapeHtml(product.emoji || '💍')}')">Add to Cart</button>`;
+        }
+      } else {
+        actionButtonHtml = `<button class="btn-notify" style="width:100%; cursor:pointer;" onclick="notifyMe('${escapeHtml(product.name)}')">Out of Stock — Notify Me</button>`;
+      }
+
+      const productTags = Array.isArray(product.tags)
+        ? product.tags
+        : product.tags
+          ? [product.tags]
+          : [];
+      const tagsHtml = productTags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
+      const priceValue = Number(product.price) || 0;
+const oldPriceValue = Number(product.old_price);
+const priceNew = `<span class="price-new">৳${priceValue.toLocaleString()}</span>`;
+const oldPriceHtml = Number.isFinite(oldPriceValue) ? `<span class="price-old">৳${oldPriceValue.toLocaleString()}</span>` : '';
+
+      if (product.category === 'Mystery Boxes') {
+        if (boxesGrid) {
+          boxesGrid.innerHTML += `
+            <div class="product-card" data-mode="${escapeHtml(product.type || 'all')}">
+              <div class="product-img" style="position:relative;">
+                <div class="product-img-bg" style="background: linear-gradient(135deg, #EDD5B0, #D4A574); opacity: 0.35;"></div>
+                ${imageHtml}
+              </div>
+              <div class="product-tier">${esc(product.name)} · ${escapeHtml(product.type || 'Package')}</div>
+              <div class="product-info">
+                <div class="product-name">${esc(product.name)}</div>
+                <p class="product-desc">${esc(product.description || '')}</p>
+                <div class="product-pricing">${priceNew}${oldPriceHtml}${discountBadge}</div>
+                <div class="product-tags">${tagsHtml}</div>
+                <div class="product-actions" style="display:flex; gap:0.6rem; width:100%;">${actionButtonHtml}</div>
+              </div>
+            </div>`;
+        }
+      } else if (product.category === 'Signature') {
+        if (signatureGrid) {
+          signatureGrid.innerHTML += `
+            <div class="product-card" data-mode="${escapeHtml(product.type || 'all')}">
+              <div class="product-img" style="position:relative;">
+                <div class="product-img-bg" style="background: linear-gradient(135deg, #95772955, #C4873A88); opacity:0.35;"></div>
+                ${imageHtml}
+              </div>
+              <div class="product-tier">${esc(product.name)} · ${escapeHtml(product.type || 'Collection')}</div>
+              <div class="product-info">
+                <div class="product-name">${esc(product.name)}</div>
+                <p class="product-desc">${esc(product.description || '')}</p>
+                <div class="product-pricing">${priceNew}${oldPriceHtml}</div>
+                <div class="product-tags">${tagsHtml}</div>
+                <div class="product-actions" style="width:100%;">${actionButtonHtml}</div>
+              </div>
+            </div>`;
+        }
+      } else {
+        const variantLabel = product.variant_name ? `<div class="indiv-variant">${escapeHtml(product.variant_name)}</div>` : '';
+        const discountLabel = product.old_price ? `<span class="indiv-discount">30% OFF</span>` : '';
+        const oldIndivPrice = product.old_price ? `<span class="indiv-price-old">৳${Number(product.old_price).toLocaleString()}</span>` : '';
+
+        if (indivGrid) {
+          indivGrid.innerHTML += `
+            <div class="indiv-card" data-cat="${escapeHtml(product.category)}">
+              <div class="indiv-img" style="position:relative;">
+                <div class="indiv-img-bg" style="background:linear-gradient(135deg,#EDD5B0,#C4873A44); opacity:0.5;"></div>
+                ${imageHtml}
+              </div>
+              <div class="indiv-cat-badge">${escapeHtml(product.category)}</div>
+              <div class="indiv-info">
+                ${variantLabel}
+                <div class="indiv-name">${esc(product.name)}</div>
+                <p class="indiv-tagline">${esc(product.tagline || '')}</p>
+                <div class="indiv-pricing">${priceNew}${oldIndivPrice}${discountLabel}</div>
+                <div class="product-actions" style="width:100%;">${actionButtonHtml}</div>
+              </div>
+            </div>`;
+        }
+      }
+    });
+
+    const activeBoxFilter = document.querySelector('.mode-toggle .mode-btn.active');
+    if (activeBoxFilter) activeBoxFilter.click();
+    const activeCatFilter = document.querySelector('.cat-tab.active');
+    if (activeCatFilter) activeCatFilter.click();
+
+  } catch (err) {
+    console.error('Error rendering production dynamic storefront context:', err);
+  }
+}
+
+window.addEventListener('load', () => {
+  fetchAndRenderCatalog();
+  if (typeof updateCartUI === 'function') updateCartUI();
+});
+</script>
+
+</body>
+</html>

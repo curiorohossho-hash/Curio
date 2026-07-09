@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CURIO রহস্য — Contact</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAV + CART + NOTIFY -->
+<nav>
+  <a href="index.html" class="nav-logo">CURIO <span>রহস্য</span></a>
+  
+  <button class="menu-toggle" id="menuToggleButton" onclick="toggleMobileMenu()" aria-label="Toggle Navigation" aria-expanded="false">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </button>
+
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="products.html">Products</a></li>
+    <li><a href="reviews.html">Reviews</a></li>
+    <li><a href="order.html">Order</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <button id="cartToggleButton" class="nav-cart" onclick="openCart()" aria-expanded="false" aria-controls="cartDrawer">
+    🛍 Cart <span class="cart-count" id="cartCount">0</span>
+  </button>
+</nav>
+
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()" aria-hidden="true"></div>
+<div class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartDrawerTitle" aria-hidden="true" tabindex="-1">
+  <div class="cart-drawer-header">
+    <div class="cart-drawer-title" id="cartDrawerTitle">Your Mystery Haul</div>
+    <button class="cart-close" onclick="closeCart()" aria-label="Close cart">✕</button>
+  </div>
+  <div id="drawerItems"></div>
+  <div class="drawer-footer" id="drawerFooter" style="display:none">
+    <div class="drawer-total">
+      <span>Total</span>
+      <span class="drawer-total-val" id="drawerTotal">৳0</span>
+    </div>
+    <a href="order.html" class="btn-primary" style="display:block;text-align:center;width:100%;padding:1rem;" onclick="closeCart()">Proceed to Order</a>
+  </div>
+</div>
+
+<div class="notify-overlay" id="notifyOverlay" onclick="closeNotify()" aria-hidden="true"></div>
+<div class="notify-modal" id="notifyModal" role="dialog" aria-modal="true" aria-labelledby="notifyTitle" aria-hidden="true" tabindex="-1">
+  <button class="notify-close" onclick="closeNotify()" aria-label="Close notification dialog">✕</button>
+  <h3 class="notify-title" id="notifyTitle">Notify me</h3>
+  <p class="notify-desc">Enter your WhatsApp number and we'll message you when it's available.</p>
+  <input class="form-input" id="notifyPhone" type="tel" placeholder="01X-XXXXXXXXX" />
+  <div id="notifySuccess" style="display:none;margin-top:1rem;color:var(--sage)">Thanks — opening WhatsApp now...</div>
+  <div style="margin-top:1rem;display:flex;gap:0.5rem;">
+    <button class="btn-primary" onclick="submitNotify()">Send</button>
+    <button class="btn-outline" onclick="closeNotify()">Cancel</button>
+  </div>
+</div>
+
+<!-- CONTACT (moved from index.html) -->
+<section id="contact">
+  <div class="contact-info">
+    <div class="section-label">Get in Touch</div>
+    <h2 class="section-title">Questions? <em>Just ask.</em></h2>
+    <div class="contact-details">
+      <div class="contact-detail">
+        <div class="contact-detail-icon">📍</div>
+        <div class="contact-detail-text">
+          <h4>Location</h4>
+          <p>Dhaka, Bangladesh<br>Delivery available nationwide</p>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">📲</div>
+        <div class="contact-detail-text">
+          <h4>WhatsApp</h4>
+          <p><a href="https://wa.me/8801615396654">+880 1615-396654</a></p>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">📧</div>
+        <div class="contact-detail-text">
+          <h4>Email</h4>
+          <p><a href="mailto:curiorohossho@gmail.com">curiorohossho@gmail.com</a></p>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">🕐</div>
+        <div class="contact-detail-text">
+          <h4>Response Time</h4>
+          <p>Within a few hours<br>Sat–Thu, 10am–9pm</p>
+        </div>
+      </div>
+    </div>
+    <div class="social-links">
+      <a class="social-link" href="https://www.instagram.com/curio.rohossho?igsh=N3pmbmtoZXdhMjJm" target="_blank" title="Instagram">
+        <svg viewBox="0 0 448 512" width="20" height="20" fill="currentColor" aria-hidden="true">
+          <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9S160.5 370.8 224.1 370.8 339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.2 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.4 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.9-26.9 26.9s-26.9-12-26.9-26.9 12-26.9 26.9-26.9 26.9 12 26.9 26.9zm76.1 27.2c-1.7-35.7-9.9-67.3-36.2-93.6s-57.9-34.5-93.6-36.2c-36.9-2.1-147.9-2.1-184.8 0-35.7 1.7-67.3 9.9-93.6 36.2s-34.5 57.9-36.2 93.6c-2.1 36.9-2.1 147.9 0 184.8 1.7 35.7 9.9 67.3 36.2 93.6s57.9 34.5 93.6 36.2c36.9 2.1 147.9 2.1 184.8 0 35.7-1.7 67.3-9.9 93.6-36.2s34.5-57.9 36.2-93.6c2.1-36.9 2.1-147.9 0-184.8zm-48.4 232.5c-7.8 19.6-23 35-42.6 42.6-29.5 11.7-99.5 9-132.9 9s-103.4 2.6-132.9-9c-19.6-7.8-35-23-42.6-42.6-11.7-29.5-9-99.5-9-132.9s-2.6-103.4 9-132.9c7.8-19.6 23-35 42.6-42.6 29.5-11.7 99.5-9 132.9-9s103.4-2.6 132.9 9c19.6 7.8 35 23 42.6 42.6 11.7 29.5 9 99.5 9 132.9s2.7 103.4-9 132.9z"/>
+        </svg>
+      </a>
+      <a class="social-link" href="https://www.facebook.com/share/1Jne11hvWM/" target="_blank" title="Facebook">
+        <svg viewBox="0 0 448 512" width="20" height="20" fill="currentColor" aria-hidden="true">
+          <path d="M400 32H48A48 48 0 0 0 0 80v352a48 48 0 0 0 48 48h137.3V327.7h-56.7v-70.1h56.7v-51.5c0-56.2 34.3-86.8 84.4-86.8 24 0 49.1 4.3 49.1 4.3v53.9h-27.6c-27.3 0-35.8 17-35.8 34.5v41.6h61l-9.8 70.1h-51.2V480H400a48 48 0 0 0 48-48V80a48 48 0 0 0-48-48z"/>
+        </svg>
+      </a>
+      <a class="social-link" href="https://wa.me/8801615396654" target="_blank" title="WhatsApp">
+        <svg viewBox="0 0 448 512" width="20" height="20" fill="currentColor" aria-hidden="true">
+          <path d="M380.9 97.1C339-12.4 212.6-24.9 126.1 30.4 29.1 91-3 212.2 49.6 315.3l-35.5 114.9 118.1-33.9c100.6 57.4 222.2 24.4 283.3-74.3 55.5-86.7 42.9-205-34.6-224.9zM224.1 338.3c-50.5 0-90.8-40.3-90.8-90.8s40.3-90.8 90.8-90.8 90.8 40.3 90.8 90.8-40.3 90.8-90.8 90.8zm46.2-64.3c-2.5-1.2-14.8-7.3-17.1-8.1-2.3-.7-4-1.2-5.7 1.2-1.7 2.3-6.6 8.1-8.1 9.7-1.5 1.7-3 1.9-5.5.7-2.5-1.2-10.4-3.8-19.8-12.3-7.3-6.5-12.2-14.4-13.6-16.9-1.4-2.5-.1-3.9 1.1-5.1 1.1-1.1 2.5-2.8 3.8-4.2 1.3-1.4 1.7-2.5 2.5-4.2.8-1.7.4-3.2-.2-4.4-.6-1.2-5.7-13.7-7.8-18.8-2-4.9-4-4.2-5.7-4.3-1.5-.1-3.2-.1-4.9-.1-1.7 0-4.4.6-6.7 3-2.3 2.4-8.9 8.7-8.9 21.3s9.1 24.7 10.4 26.4c1.3 1.7 18 27.6 43.7 38.7 6.1 2.6 10.9 4.1 14.6 5.2 6.1 1.8 11.6 1.6 16 1 4.9-.7 14.8-6 16.9-11.8 2.1-5.8 2.1-10.7 1.5-11.8-.7-1.2-2.3-1.8-4.8-3z"/>
+        </svg>
+      </a>
+      <a class="social-link" href="https://tiktok.com/@curiorohossho" target="_blank" title="TikTok">
+        <svg viewBox="0 0 448 512" width="20" height="20" fill="currentColor" aria-hidden="true">
+          <path d="M448 209.2v86.5c-16.7 7.7-35.1 12.5-54.5 13.3-6.5.3-13 .3-19.4 0-3.1-.1-6.1-.2-9.1-.4v93.8c-18.9 4.7-38.5 7.1-58.7 7.1-62.9 0-123.8-44.7-123.8-134.2 0-40.6 16.9-68.7 35.3-87.7 18.5-19.1 41.8-31.2 69.6-31.2 5.7 0 11.4.5 17 .9v147.8c0 21.2 15 42.1 40.8 42.1 35.2 0 55.7-28 55.7-62.4V191.8c35.7-20.5 60.1-57.4 60.1-92.8h59.1c0 38.4-15 76.3-45.1 104.6z"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label" style="margin-bottom:1.5rem;">Send a Message</div>
+    <div class="contact-form" id="contactForm">
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input class="form-input" type="text" id="cName" placeholder="Name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone / Email</label>
+        <input class="form-input" type="text" id="cContact" placeholder="How should we reach you?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <select class="form-select" id="cSubject">
+          <option>General Inquiry</option>
+          <option>Order Issue</option>
+          <option>Gift Ordering</option>
+          <option>Collaboration / Press</option>
+          <option>Something Else</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Message</label>
+        <textarea class="form-textarea" id="cMessage" placeholder="Tell us what's on your mind..."></textarea>
+      </div>
+      <button class="submit-btn" onclick="submitContact()">Send Message</button>
+    </div>
+    <div class="form-success" id="contactSuccess">
+      <p>✦ Message received! We'll get back to you shortly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+<script>
+function submitContact() {
+    const name = document.getElementById('cName').value.trim();
+    const contact = document.getElementById('cContact').value.trim();
+    const subject = document.getElementById('cSubject').value;
+    const message = document.getElementById('cMessage').value.trim();
+
+    if (!message) { alert('Please write a message.'); return; }
+
+    const msg = encodeURIComponent(
+      `📩 Message from CURIO site\n\nName: ${name || 'N/A'}\nContact: ${contact || 'N/A'}\nSubject: ${subject}\n\nMessage: ${message}`
+    );
+
+    document.getElementById('contactForm').style.display = 'none';
+    document.getElementById('contactSuccess').style.display = 'block';
+
+    setTimeout(() => {
+      window.open(`https://wa.me/8801615396654?text=${msg}`, '_blank');
+    }, 600);
+  }
+
+window.addEventListener('load', () => {
+  if (typeof updateCartUI === 'function') updateCartUI();
+});
+</script>
+
+</body>
+</html>

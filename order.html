@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CURIO রহস্য — Order</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAV + CART + NOTIFY -->
+<nav>
+  <a href="index.html" class="nav-logo">CURIO <span>রহস্য</span></a>
+  
+  <button class="menu-toggle" id="menuToggleButton" onclick="toggleMobileMenu()" aria-label="Toggle Navigation" aria-expanded="false">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </button>
+
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="products.html">Products</a></li>
+    <li><a href="reviews.html">Reviews</a></li>
+    <li><a href="order.html">Order</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <button id="cartToggleButton" class="nav-cart" onclick="openCart()" aria-expanded="false" aria-controls="cartDrawer">
+    🛍 Cart <span class="cart-count" id="cartCount">0</span>
+  </button>
+</nav>
+
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()" aria-hidden="true"></div>
+<div class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartDrawerTitle" aria-hidden="true" tabindex="-1">
+  <div class="cart-drawer-header">
+    <div class="cart-drawer-title" id="cartDrawerTitle">Your Mystery Haul</div>
+    <button class="cart-close" onclick="closeCart()" aria-label="Close cart">✕</button>
+  </div>
+  <div id="drawerItems"></div>
+  <div class="drawer-footer" id="drawerFooter" style="display:none">
+    <div class="drawer-total">
+      <span>Total</span>
+      <span class="drawer-total-val" id="drawerTotal">৳0</span>
+    </div>
+    <a href="order.html" class="btn-primary" style="display:block;text-align:center;width:100%;padding:1rem;" onclick="closeCart()">Proceed to Order</a>
+  </div>
+</div>
+
+<div class="notify-overlay" id="notifyOverlay" onclick="closeNotify()" aria-hidden="true"></div>
+<div class="notify-modal" id="notifyModal" role="dialog" aria-modal="true" aria-labelledby="notifyTitle" aria-hidden="true" tabindex="-1">
+  <button class="notify-close" onclick="closeNotify()" aria-label="Close notification dialog">✕</button>
+  <h3 class="notify-title" id="notifyTitle">Notify me</h3>
+  <p class="notify-desc">Enter your WhatsApp number and we'll message you when it's available.</p>
+  <input class="form-input" id="notifyPhone" type="tel" placeholder="01X-XXXXXXXXX" />
+  <div id="notifySuccess" style="display:none;margin-top:1rem;color:var(--sage)">Thanks — opening WhatsApp now...</div>
+  <div style="margin-top:1rem;display:flex;gap:0.5rem;">
+    <button class="btn-primary" onclick="submitNotify()">Send</button>
+    <button class="btn-outline" onclick="closeNotify()">Cancel</button>
+  </div>
+</div>
+
+<!-- ORDER (moved from index.html) -->
+<section id="order">
+  <div class="section-label">Place an Order</div>
+  <h2 class="section-title">Ready to unbox <em>something?</em></h2>
+
+  <div class="order-layout">
+    <div class="order-summary">
+      <h3>Your Cart</h3>
+      <div class="cart-items" id="cartItemsList"></div>
+      <div class="cart-empty" id="cartEmptyMsg">Your cart is empty — add a box or item above ✦</div>
+      <div class="cart-total" id="cartTotalRow" style="display:none">
+        <span class="cart-total-label">Total</span>
+        <span class="cart-total-value" id="cartTotalDisplay">৳0</span>
+      </div>
+      <div class="cod-note">
+        ✦ <strong>Inside Dhaka:</strong> Cash on Delivery — pay when it arrives, plus ৳<strong>70</strong> delivery charge. No advance needed.<br>
+        ✦ <strong>Outside Dhaka:</strong> A small advance delivery charge (৳<strong>130</strong>) via Bkash/Nagad is required to ship your order. Pay the rest on arrival.
+      </div>
+    </div>
+
+    <div>
+      <form class="order-form" id="orderForm" onsubmit="submitOrder(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Your Name *</label>
+            <input class="form-input" type="text" id="custName" placeholder="Full name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number *</label>
+            <input class="form-input" type="tel" id="custPhone" placeholder="01X-XXXXXXXXX" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Delivery Address *</label>
+          <input class="form-input" type="text" id="custAddress" placeholder="House, Road, Area, City" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Delivery Area *</label>
+            <select class="form-select" id="deliveryArea" onchange="toggleDeliveryNote()">
+              <option value="">-- select area --</option>
+              <option value="Inside Dhaka (COD)">Inside Dhaka — Cash on Delivery</option>
+              <option value="Outside Dhaka (Advance via Bkash/Nagad)">Outside Dhaka — Advance via Bkash/Nagad</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Order Type</label>
+            <select class="form-select" id="boxTier">
+              <option value="">-- select type --</option>
+              <option value="Small Box (৳499)">Small Box — ৳499</option>
+              <option value="Classic Box (৳799)">Classic Box — ৳799</option>
+              <option value="Mega Box (৳1,199)">Mega Box — ৳1,199</option>
+              <option value="Signature Box (৳1,999)">Signature Box — ৳1,999</option>
+              <option value="Normal Order (Individual Items)">Normal Order — Individual Items</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fulfilment Mode</label>
+          <select class="form-select" id="boxMode">
+            <option value="">-- select mode --</option>
+            <option value="Scoop (Live Video)">Scoop — Live Video</option>
+            <option value="Package (Curated)">Package — Curated Surprise</option>
+            <option value="Normal Order (Pick &amp; Ship)">Normal Order — Pick &amp; Ship</option>
+          </select>
+        </div>
+        <div id="advanceNote" class="cod-note" style="display:none;border-left-color:var(--amber);background:rgba(196,135,58,0.08);">
+          ✦ For deliveries outside Dhaka, please send <strong>৳130</strong> as advance delivery charge via <strong>Bkash: 01974488640</strong> or <strong>Nagad: 01615396654</strong> after placing your order. Enter the transaction ID below to confirm payment.
+        </div>
+        <div class="form-group" id="transactionGroup" style="display:none;">
+          <label class="form-label">Bkash / Nagad Transaction ID *</label>
+          <input class="form-input" type="text" id="transactionId" placeholder="Enter your transaction ID">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Is this a gift?</label>
+          <select class="form-select" id="isGift">
+            <option value="No">No, it's for me</option>
+            <option value="Yes">Yes — add gift wrapping</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Any notes or preferences?</label>
+          <textarea class="form-textarea" id="custNotes" placeholder="Colour preferences, allergies, special requests..."></textarea>
+        </div>
+        <button type="submit" class="submit-btn">✦ Place My Order</button>
+      </form>
+
+      <div class="order-success" id="orderSuccess">
+        <div class="tick">🎉</div>
+        <h3>Order Received!</h3>
+        <p>Thank you! We'll contact you soon to confirm your order and arrange delivery. Get ready to unbox something special.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+<script>
+function toggleDeliveryNote() {
+    const area = document.getElementById('deliveryArea').value;
+    const note = document.getElementById('advanceNote');
+    const transactionGroup = document.getElementById('transactionGroup');
+    const isOutside = area.includes('Outside Dhaka');
+
+    note.style.display = isOutside ? 'block' : 'none';
+    transactionGroup.style.display = isOutside ? 'block' : 'none';
+    if (!isOutside) {
+      document.getElementById('transactionId').value = '';
+    }
+  }
+
+async function submitOrder(event) {
+    if (event && typeof event.preventDefault === 'function') {
+      event.preventDefault();
+    }
+    if (isSubmitting) {
+      return;
+    }
+
+    const submitBtn = document.querySelector('#orderForm button[type="submit"]');
+    const originalBtnText = submitBtn ? submitBtn.textContent : '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+      submitBtn.setAttribute('aria-busy', 'true');
+    }
+    isSubmitting = true;
+
+    const name = document.getElementById('custName').value.trim();
+    const phone = document.getElementById('custPhone').value.trim();
+    const address = document.getElementById('custAddress').value.trim();
+    const area = document.getElementById('deliveryArea').value;
+    const transactionId = document.getElementById('transactionId').value.trim();
+
+    const resetSubmitState = () => {
+      isSubmitting = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+        submitBtn.removeAttribute('aria-busy');
+      }
+    };
+
+    if (!name || !phone || !address) {
+      resetSubmitState();
+      alert('Please fill in your name, phone, and address.');
+      return;
+    }
+    if (!area) {
+      resetSubmitState();
+      alert('Please select your delivery area (Inside or Outside Dhaka).');
+      return;
+    }
+    if (area.includes('Outside Dhaka') && !transactionId) {
+      resetSubmitState();
+      alert('Please provide your Bkash or Nagad transaction ID for outside Dhaka delivery.');
+      return;
+    }
+
+    const tier = document.getElementById('boxTier').value || 'Not specified';
+    const mode = document.getElementById('boxMode').value || 'Not specified';
+    const gift = document.getElementById('isGift').value;
+    const notes = document.getElementById('custNotes').value.trim();
+    const total = cart.reduce((s, i) => s + i.price, 0);
+
+    const orderPayload = {
+      customer_name: name,
+      phone_number: phone,
+      delivery_address: address,
+      delivery_area: area,
+      order_type: tier,
+      fulfilment_mode: mode,
+      is_gift: gift,
+      customer_notes: notes || null,
+      cart_data: cart,
+      payment_transaction_id: transactionId || null,
+      total_price: total
+    };
+
+    try {
+      // Post to Supabase if connection established
+      if (_supabaseClient) {
+        const { error } = await _supabaseClient
+          .from('orders')
+          .insert([orderPayload]);
+
+        if (error) throw error;
+      } else {
+        console.warn('Order dispatch skipped cloud migration log; executing standard client redirect protocol.');
+      }
+
+      const cartSummary = cart.length > 0
+        ? cart.map(i => `${i.emoji} ${i.name} (৳${i.price})`).join(', ')
+        : tier;
+
+      const msg = encodeURIComponent(
+        `🛍 New CURIO Order!\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nArea: ${area}\nType: ${tier}\nMode: ${mode}\nCart: ${cartSummary}\nTotal: ৳${total}\nGift Wrapping: ${gift}\nNotes: ${notes || 'None'}`
+      );
+
+      // Mutate UI view after the cloud transaction is confirmed.
+      document.getElementById('orderForm').style.display = 'none';
+      document.getElementById('orderSuccess').style.display = 'block';
+
+      // Flawlessly drain active cart cache only after the success view is visible.
+      cart = [];
+      updateCartUI();
+
+      // No mandatory WhatsApp redirect after order placement.
+      // Customers may still contact us via WhatsApp manually if they want.
+
+    } catch (err) {
+      console.error('Critical transactional network error logged:', err);
+      alert('We had trouble saving your order automatically. Please contact us on WhatsApp if you want to confirm your order manually.');
+    } finally {
+      isSubmitting = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+        submitBtn.removeAttribute('aria-busy');
+      }
+    }
+  }
+
+window.addEventListener('load', () => {
+  if (typeof syncOrderFormWithCart === 'function') syncOrderFormWithCart();
+  if (typeof updateCartUI === 'function') updateCartUI();
+});
+</script>
+
+</body>
+</html>

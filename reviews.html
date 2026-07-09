@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CURIO রহস্য — Reviews</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAV + CART + NOTIFY -->
+<nav>
+  <a href="index.html" class="nav-logo">CURIO <span>রহস্য</span></a>
+  
+  <button class="menu-toggle" id="menuToggleButton" onclick="toggleMobileMenu()" aria-label="Toggle Navigation" aria-expanded="false">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </button>
+
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="products.html">Products</a></li>
+    <li><a href="reviews.html">Reviews</a></li>
+    <li><a href="order.html">Order</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <button id="cartToggleButton" class="nav-cart" onclick="openCart()" aria-expanded="false" aria-controls="cartDrawer">
+    🛍 Cart <span class="cart-count" id="cartCount">0</span>
+  </button>
+</nav>
+
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()" aria-hidden="true"></div>
+<div class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartDrawerTitle" aria-hidden="true" tabindex="-1">
+  <div class="cart-drawer-header">
+    <div class="cart-drawer-title" id="cartDrawerTitle">Your Mystery Haul</div>
+    <button class="cart-close" onclick="closeCart()" aria-label="Close cart">✕</button>
+  </div>
+  <div id="drawerItems"></div>
+  <div class="drawer-footer" id="drawerFooter" style="display:none">
+    <div class="drawer-total">
+      <span>Total</span>
+      <span class="drawer-total-val" id="drawerTotal">৳0</span>
+    </div>
+    <a href="order.html" class="btn-primary" style="display:block;text-align:center;width:100%;padding:1rem;" onclick="closeCart()">Proceed to Order</a>
+  </div>
+</div>
+
+<div class="notify-overlay" id="notifyOverlay" onclick="closeNotify()" aria-hidden="true"></div>
+<div class="notify-modal" id="notifyModal" role="dialog" aria-modal="true" aria-labelledby="notifyTitle" aria-hidden="true" tabindex="-1">
+  <button class="notify-close" onclick="closeNotify()" aria-label="Close notification dialog">✕</button>
+  <h3 class="notify-title" id="notifyTitle">Notify me</h3>
+  <p class="notify-desc">Enter your WhatsApp number and we'll message you when it's available.</p>
+  <input class="form-input" id="notifyPhone" type="tel" placeholder="01X-XXXXXXXXX" />
+  <div id="notifySuccess" style="display:none;margin-top:1rem;color:var(--sage)">Thanks — opening WhatsApp now...</div>
+  <div style="margin-top:1rem;display:flex;gap:0.5rem;">
+    <button class="btn-primary" onclick="submitNotify()">Send</button>
+    <button class="btn-outline" onclick="closeNotify()">Cancel</button>
+  </div>
+</div>
+
+<!-- REVIEWS (moved from index.html) -->
+<section id="reviews">
+  <div class="section-label">Customer Love</div>
+  <h2 class="section-title">Share your <em>review</em>.</h2>
+  <div class="reviews-layout">
+    <div class="reviews-grid" id="reviewsGrid"></div>
+    <div class="review-form-panel">
+      <form id="reviewForm" class="order-form" onsubmit="submitReview(event)">
+        <div class="form-group">
+          <label class="form-label" for="reviewerName">Your Name</label>
+          <input class="form-input" type="text" id="reviewerName" placeholder="Name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reviewText">Your Review</label>
+          <textarea class="form-textarea" id="reviewText" placeholder="Tell us what you loved..." required minlength="50" maxlength="5000"></textarea>
+          <p class="form-note">Please write between 50 and 5000 characters.</p>
+        </div>
+        <button type="submit" class="submit-btn">Submit Review</button>
+      </form>
+      <div id="reviewsEmpty" class="review-empty" style="display:none; margin-top:1.5rem;">
+        No reviews yet — be the first to share your experience.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+<script>
+  // ── CORE TRANSACTION GATEWAY (SUPABASE) ──
+  async function submitReview(event) {
+    if (event && typeof event.preventDefault === 'function') event.preventDefault();
+    const name = document.getElementById('reviewerName')?.value.trim();
+    const text = document.getElementById('reviewText')?.value.trim();
+    if (!name || !text) {
+      alert('Please enter both your name and review.');
+      return;
+    }
+
+    const review = {
+      id: Date.now().toString(),
+      name,
+      text,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    };
+
+    let backendSaved = false;
+    try {
+      if (_supabaseClient) {
+        await saveReviewToBackend(review);
+        backendSaved = true;
+      }
+    } catch (e) {
+      console.warn('Review save to Supabase failed, falling back to local storage.', e);
+      alert('Your review has been saved locally. It will appear on this browser, but may not be shared across all visitors until Supabase is connected correctly.');
+    }
+
+    reviews.unshift(review);
+    saveReviews();
+    renderReviews();
+    document.getElementById('reviewForm')?.reset();
+
+    if (backendSaved) {
+      const successBanner = document.createElement('div');
+      successBanner.style.marginTop = '1rem';
+      successBanner.style.padding = '1rem';
+      successBanner.style.background = '#E8F6EF';
+      successBanner.style.border = '1px solid #7AD7A8';
+      successBanner.style.borderRadius = '12px';
+      successBanner.textContent = 'Review Submitted';
+      document.getElementById('reviewForm')?.appendChild(successBanner);
+      setTimeout(() => successBanner.remove(), 4000);
+    }
+  }
+
+  window.addEventListener('load', () => {
+    if (typeof loadReviews === 'function') loadReviews();
+    if (typeof renderReviews === 'function') renderReviews();
+    if (typeof updateCartUI === 'function') updateCartUI();
+  });
+</script>
+
+</body>
+</html>
