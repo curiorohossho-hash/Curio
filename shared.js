@@ -45,10 +45,15 @@ async function loadReviews() {
     try {
       const { data, error } = await _supabaseClient
         .from(REVIEWS_TABLE)
-        .select('id,name,text,created_at')
-        .order('created_at', { ascending: false });
+        .select('*'); // Pull absolutely everything first to avoid configuration filtering issues
 
-      if (error) throw error;
+      if (error) {
+        alert("Supabase Database Error: " + error.message + " | Hint: " + error.hint);
+        throw error;
+      }
+      
+      alert("Database Connection Successful! Total reviews found: " + (data ? data.length : 0));
+
       if (Array.isArray(data) && data.length > 0) {
         reviews = data.map(item => ({
           id: item.id || Date.now().toString(),
@@ -56,7 +61,7 @@ async function loadReviews() {
           text: item.text || '',
           date: item.created_at
             ? new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-            : ''
+            : 'Jul 2026'
         }));
         return;
       }
