@@ -45,14 +45,9 @@ async function loadReviews() {
     try {
       const { data, error } = await _supabaseClient
         .from(REVIEWS_TABLE)
-        .select('*'); // Pull absolutely everything first to avoid configuration filtering issues
+        .select('*'); 
 
-      if (error) {
-        alert("Supabase Database Error: " + error.message + " | Hint: " + error.hint);
-        throw error;
-      }
-      
-      alert("Database Connection Successful! Total reviews found: " + (data ? data.length : 0));
+      if (error) throw error;
 
       if (Array.isArray(data) && data.length > 0) {
         reviews = data.map(item => ({
@@ -115,20 +110,23 @@ function saveReviews() {
 function renderReviews() {
   const reviewsGrid = document.getElementById('reviewsGrid');
   const reviewsEmpty = document.getElementById('reviewsEmpty');
-  if (!reviewsGrid || !reviewsEmpty) return;
+  
+  // Safety break: stops errors if loaded on index.html where these fields don't exist
+  if (!reviewsGrid) return;
 
-  if (reviews.length === 0) {
+  if (!reviews || reviews.length === 0) {
     reviewsGrid.innerHTML = '';
-    reviewsEmpty.style.display = 'block';
+    if (reviewsEmpty) reviewsEmpty.style.display = 'block';
     return;
   }
 
-  reviewsEmpty.style.display = 'none';
-  reviewsGrid.innerHTML = reviews.slice().reverse().map(review => `
+  if (reviewsEmpty) reviewsEmpty.style.display = 'none';
+  
+  reviewsGrid.innerHTML = reviews.map(review => `
     <div class="review-card">
       <div class="review-header">
         <div class="review-name">${escapeHtml(review.name)}</div>
-        <div class="review-date">${escapeHtml(review.date || '')}</div>
+        <div class="review-date">${escapeHtml(review.date || 'Jul 2026')}</div>
       </div>
       <p class="review-text">${escapeHtml(review.text)}</p>
     </div>
