@@ -241,35 +241,51 @@
   }
   .box-card:hover { transform: translateY(-8px) rotate(-1deg) !important; }
 
- /* ── HOME HERO HERO BOX CARDS FIX ── */
+ /* ── HOME HERO BOX CARDS FIX (CORRECTED) ── */
 
-/* 1. Update the individual backgrounds to premium dark tones */
+/* Card 1: Keeps its exact size and left layout position, just shifts to dark bark */
 .box-card-1 {
-  background: #241410 !important; /* Rich Curio Bark */
-  border: 1px solid rgba(234, 178, 107, 0.3) !important; /* Glowing Ochre Border */
+  background: #241410 !important; 
+  border: 1px solid rgba(234, 178, 107, 0.3) !important;
+  width: 200px !important; 
+  height: 240px !important;
+  top: 40px !important; 
+  left: 20px !important;
+  transform: rotate(-4deg) !important;
 }
 
+/* Card 2: Keeps its mid-stack size and right positioning layout */
 .box-card-2 {
-  background: #1A0D0A !important; /* Deeper Dark Bark */
-  border: 1px solid rgba(158, 27, 27, 0.4) !important; /* Subtle Garnet Border Accent */
+  background: #1A0D0A !important; 
+  border: 1px solid rgba(158, 27, 27, 0.4) !important;
+  width: 180px !important; 
+  height: 210px !important;
+  top: 80px !important; 
+  left: 170px !important;
+  transform: rotate(3deg) !important;
 }
 
+/* Card 3: Keeps its foreground size and low-hanging center layout */
 .box-card-3 {
-  background: #1C1513 !important; /* Premium Charcoal-Brown */
+  background: #1C1513 !important; 
   border: 1px solid rgba(234, 178, 107, 0.2) !important;
+  width: 160px !important; 
+  height: 190px !important;
+  top: 240px !important; 
+  left: 100px !important;
+  transform: rotate(-1.5deg) !important;
 }
 
-/* 2. Fix text readability inside these specific cards */
+/* Fix text readability inside these specific cards */
 .box-card .box-label {
-  color: #FFF9D4 !important; /* Crisp Mystery Parchment for titles */
+  color: #FFF9D4 !important; 
   opacity: 0.85 !important;
 }
 
 .box-card .box-price {
-  color: #EAB26B !important; /* Toasted Ochre Gold for prices */
+  color: #EAB26B !important; 
   font-weight: 700 !important;
 }
-
   .hero-bg-circle {
     position: absolute;
     width: 500px; height: 500px;
