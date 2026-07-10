@@ -307,10 +307,16 @@ const oldPriceHtml = Number.isFinite(oldPriceValue) ? `<span class="price-old">�
       }
     });
 
-    const activeBoxFilter = document.querySelector('.mode-toggle .mode-btn.active');
-    if (activeBoxFilter) activeBoxFilter.click();
-    const activeCatFilter = document.querySelector('.cat-tab.active');
-    if (activeCatFilter) activeCatFilter.click();
+   // ── ROBUST ASYNC VISIBILITY SYNCHRONIZATION ENGINE ──
+    // Uses a microscopic frame delay to ensure the database elements are fully painted 
+    // to the DOM tree before applying the default simulated click states.
+    setTimeout(() => {
+      const activeBoxFilter = document.querySelector('.mode-toggle .mode-btn.active');
+      if (activeBoxFilter) activeBoxFilter.click();
+      
+      const activeCatFilter = document.querySelector('.cat-tab.active');
+      if (activeCatFilter) activeCatFilter.click();
+    }, 50);
 
   } catch (err) {
     console.error('Error rendering production dynamic storefront context:', err);
