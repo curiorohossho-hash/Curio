@@ -1462,9 +1462,12 @@
   .order-layout { grid-template-columns: 1fr; gap: 3rem; }
   #contact { grid-template-columns: 1fr; padding: 4rem 1.5rem; gap: 3rem; }
   
-  /* Individual items safety scaling to prevent text clipping */
+ /* Fixed Individual items safety scaling to prevent text clipping and mobile collapses */
   .indiv-grid { 
-    grid-template-columns: 1fr; 
+    display: grid !important;
+    grid-template-columns: 1fr !important; 
+    grid-auto-rows: auto !important; /* Forces the mobile browser to calculate row heights dynamically */
+    gap: 1.5rem !important;
     max-width: 400px;
     margin: 0 auto;
   }
