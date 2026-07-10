@@ -1573,3 +1573,35 @@
     gap: 1.5rem;
   }
 }
+
+/* ── GLOBAL READABILITY ENHANCEMENTS ── */
+
+/* 1. Make regular body descriptions clearer and crisper */
+body {
+  font-weight: 400 !important; /* Changes from ultra-light 300 to a solid 400 regular balance */
+  line-height: 1.8 !important; /* Gives perfect vertical breathing room for reading */
+}
+
+p, .step-desc, .product-desc, .mode-card-desc, .faq-answer p, .footer-brand-desc, .directory-card p {
+  opacity: 0.85 !important; /* Bumps contrast up from 0.60 so text is distinct against cream backgrounds */
+  letter-spacing: 0.02em !important; /* Slightly spaces small letters so they don't blur together */
+}
+
+/* 2. Make headings cleaner and easier to skim */
+h1, h2, h3, h4, .product-name, .indiv-name, .step-title {
+  font-weight: 700 !important; /* Assures bold text stands out structurally */
+  letter-spacing: 0.03em !important;
+}
+
+/* 3. Mobile screen text optimizations */
+@media (max-width: 900px) {
+  p, .step-desc, .product-desc, .mode-card-desc, .faq-answer p, .directory-card p {
+    font-size: 0.8rem !important; /* Slightly bumps small phone fonts so users don't have to squint */
+    line-height: 1.85 !important;
+  }
+  
+  .form-label, .section-label {
+    font-size: 0.68rem !important; /* Makes labels more legible on dark or warm backdrops */
+    letter-spacing: 0.2em !important;
+  }
+}
