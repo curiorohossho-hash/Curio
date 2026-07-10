@@ -1501,23 +1501,4 @@
   .faq-question { padding: 1.15rem 1.25rem; gap: 1rem; }
   .faq-card.open .faq-answer { padding: 0 1.25rem 1.4rem; }
 }
-/* MOBILE MENU TEXT FIX */
-@media (max-width: 900px) {
-  .menu-toggle {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    width: auto !important;
-    height: auto !important;
-  }
-  
-  /* This adds the word MENU before the bars */
-  .menu-toggle::before {
-    content: "MENU";
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    color: var(--brown);
-    font-weight: 500;
-  }
-}
+
