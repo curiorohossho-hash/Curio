@@ -1654,16 +1654,16 @@ nav {
   font-weight: 500;
 }
 
-/* ── DISTINCT PREMIUM POP FOOTER ── */
+/* ── BOX MATCHED PREMIUM FOOTER ── */
 footer {
-  background: #241410 !important; /* Rich Curio Bark — explicitly separates it from the homepage background */
-  border-top: 3px solid #EAB26B !important; /* Thick Toasted Ochre gold line to make it pop visually */
+  background: #1A0D0A !important; /* Matches your FAQ boxes and product card backgrounds exactly */
+  border-top: 2px solid #EAB26B !important; /* Clean gold line to frame it beautifully */
   padding: 5rem 1.5rem 3rem !important; 
 }
 
 /* Fix main brand title size and color */
 .footer-brand-name {
-  color: #FFF9D4 !important; /* Glowing Mystery Parchment */
+  color: #FFF9D4 !important; /* Crisp Mystery Parchment */
   font-size: 1.8rem !important; 
   font-weight: 700 !important;
   margin-bottom: 1.2rem !important;
@@ -1675,7 +1675,7 @@ footer {
 /* Fix description block visibility and size */
 .footer-brand-desc {
   color: #FFF9D4 !important; 
-  opacity: 0.9 !important; /* Bumps readability even higher */
+  opacity: 0.9 !important; /* High contrast text visibility */
   font-size: 0.9rem !important; 
   line-height: 1.8 !important;
   max-width: 340px !important;
@@ -1717,7 +1717,7 @@ footer {
   font-size: 0.8rem !important; 
 }
 
-/* Mobile responsive alignment formatting */
+/* Mobile responsive layout */
 @media (max-width: 900px) {
   .footer-top {
     grid-template-columns: 1fr !important; 
