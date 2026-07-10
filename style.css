@@ -241,47 +241,34 @@
   }
   .box-card:hover { transform: translateY(-8px) rotate(-1deg) !important; }
 
-  .box-card-1 {
-    width: 200px; height: 240px;
-    top: 40px; left: 20px;
-    transform: rotate(-4deg);
-    z-index: 3;
-    background: #EDE0C8;
-    box-shadow: 6px 8px 24px var(--shadow);
-  }
-  .box-card-2 {
-    width: 180px; height: 210px;
-    top: 80px; left: 170px;
-    transform: rotate(3deg);
-    z-index: 2;
-    background: #E8D5C0;
-    box-shadow: 4px 6px 18px var(--shadow);
-  }
-  .box-card-3 {
-    width: 160px; height: 190px;
-    top: 240px; left: 100px;
-    transform: rotate(-1.5deg);
-    z-index: 4;
-    background: #F0E8D4;
-    box-shadow: 8px 10px 28px var(--shadow);
-  }
+ /* ── HOME HERO HERO BOX CARDS FIX ── */
 
-  .box-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
-  .box-label {
-    font-size: 0.58rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--brown);
-    opacity: 0.6;
-    text-align: center;
-    padding: 0 1rem;
-  }
-  .box-price {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    color: var(--amber);
-    margin-top: 0.5rem;
-  }
+/* 1. Update the individual backgrounds to premium dark tones */
+.box-card-1 {
+  background: #241410 !important; /* Rich Curio Bark */
+  border: 1px solid rgba(234, 178, 107, 0.3) !important; /* Glowing Ochre Border */
+}
+
+.box-card-2 {
+  background: #1A0D0A !important; /* Deeper Dark Bark */
+  border: 1px solid rgba(158, 27, 27, 0.4) !important; /* Subtle Garnet Border Accent */
+}
+
+.box-card-3 {
+  background: #1C1513 !important; /* Premium Charcoal-Brown */
+  border: 1px solid rgba(234, 178, 107, 0.2) !important;
+}
+
+/* 2. Fix text readability inside these specific cards */
+.box-card .box-label {
+  color: #FFF9D4 !important; /* Crisp Mystery Parchment for titles */
+  opacity: 0.85 !important;
+}
+
+.box-card .box-price {
+  color: #EAB26B !important; /* Toasted Ochre Gold for prices */
+  font-weight: 700 !important;
+}
 
   .hero-bg-circle {
     position: absolute;
