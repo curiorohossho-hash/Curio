@@ -313,14 +313,22 @@ const oldPriceHtml = Number.isFinite(oldPriceValue) ? `<span class="price-old">�
     });
 
    // ── ROBUST ASYNC VISIBILITY SYNCHRONIZATION ENGINE ──
-    // Uses a microscopic frame delay to ensure the database elements are fully painted 
-    // to the DOM tree before applying the default simulated click states.
     setTimeout(() => {
+      // 1. Trigger the filter selections securely
       const activeBoxFilter = document.querySelector('.mode-toggle .mode-btn.active');
       if (activeBoxFilter) activeBoxFilter.click();
       
       const activeCatFilter = document.querySelector('.cat-tab.active');
       if (activeCatFilter) activeCatFilter.click();
+
+      // 2. FORCE REVEAL: Prevents mobile intersection observers from locking dynamic items in invisible states
+      const individualSection = document.getElementById('individual');
+      if (individualSection) {
+        individualSection.classList.add('revealed');
+      }
+      document.querySelectorAll('.indiv-card').forEach(card => {
+        card.classList.add('revealed');
+      });
     }, 50);
 
   } catch (err) {
