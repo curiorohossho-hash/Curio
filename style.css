@@ -1,16 +1,16 @@
 :root {
-    --cream: #F5EFE0;
-    --warm-white: #FAF7F0;
-    --ink: #1A1208;
-    --brown: #3D2B1A;
-    --amber: #C4873A;
-    --dusty-rose: #C4877A;
-    --sage: #7A9E7E;
-    --muted-gold: #B8A062;
-    --paper: #EDE5D0;
-    --shadow: rgba(26,18,8,0.12);
-  }
-
+  --cream: #241410;            /* Swapped to Curio Bark for card backgrounds */
+  --warm-white: #121212;       /* Swapped to Deep Charcoal for the main background */
+  --ink: #FFF9D4;              /* Swapped to Mystery Parchment for readable text */
+  --brown: #FFF9D4;            /* Main heading text color */
+  --amber: #EAB26B;            /* Toasted Ochre for premium gold accents */
+  --dusty-rose: #C36F43;       /* Vintage Terracotta for product accents */
+  --sage: #7A9E7E;             /* Keeps the success note soft */
+  --muted-gold: #EAB26B;       /* Secondary gold headings */
+  --paper: #1A0D0A;            /* Even deeper bark tone for nested cards */
+  --shadow: rgba(0,0,0,0.6);   /* Heavy, rich dark shadow for depth */
+  --garnet: #9E1B1B;           /* Rohossho Garnet for special mystery accents */
+}
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   html { scroll-behavior: smooth; }
@@ -1604,4 +1604,49 @@ h1, h2, h3, h4, .product-name, .indiv-name, .step-title {
     font-size: 0.68rem !important; /* Makes labels more legible on dark or warm backdrops */
     letter-spacing: 0.2em !important;
   }
+}
+
+/* ── PREMIUM DARK MODE INTERACTIVE OVERRIDES ── */
+
+/* Make navigation background blur beautifully on dark mode */
+nav {
+  background: rgba(18, 18, 18, 0.8) !important;
+  border-bottom: 1px solid rgba(234, 178, 107, 0.15) !important;
+}
+
+/* Update text fields so inputs look premium and dark */
+.form-input, .form-select, .form-textarea {
+  background: #1A0D0A !important;
+  border: 1px solid rgba(234, 178, 107, 0.25) !important;
+  color: #FFF9D4 !important;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--amber) !important;
+  box-shadow: 0 0 8px rgba(234, 178, 107, 0.2);
+}
+
+/* Smooth out the slide-out navigation menu for mobile devices */
+@media (max-width: 900px) {
+  .nav-links {
+    background: #1A0D0A !important;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.7) !important;
+  }
+}
+
+/* Give product images a subtle dark-mode vignette so they look high-end */
+.product-img-bg, .indiv-img-bg {
+  background: linear-gradient(135deg, rgba(36,20,16,0.8), rgba(18,18,18,0.9)) !important;
+  opacity: 0.8 !important;
+}
+
+/* Soft contrast tweak for background sections like "How it works" */
+#how, #reviews, #order, #explore-directory {
+  background: #161616 !important;
+}
+
+/* Make launch price or sale badges use the rich Rohossho Garnet */
+.price-badge, .indiv-discount {
+  background: var(--garnet) !important;
+  color: #FFF9D4 !important;
+  font-weight: 500;
 }
