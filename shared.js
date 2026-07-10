@@ -408,3 +408,31 @@ window.addEventListener('resize', () => {
     }
   }
 });
+
+// ── SCROLL REVEAL ANIMATION ENGINE ──
+document.addEventListener('DOMContentLoaded', () => {
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.1 // Triggers when 10% of the section is visible
+  };
+
+  const revealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target); // Stops watching once animated
+      }
+    });
+  }, observerOptions);
+
+  // Target sections to smoothly fade in
+  const elementsToReveal = document.querySelectorAll(
+    '#how, #explore-directory, #signature, #faq, #products, #modes, #individual, #order, #contact, .product-card, .indiv-card, .directory-card'
+  );
+  
+  elementsToReveal.forEach(el => {
+    el.classList.add('scroll-reveal');
+    revealObserver.observe(el);
+  });
+});
