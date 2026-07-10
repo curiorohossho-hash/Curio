@@ -1653,3 +1653,77 @@ nav {
   color: #FFF9D4 !important;
   font-weight: 500;
 }
+
+/* ── HEAVY-DUTY PREMIUM DARK FOOTER FIX ── */
+footer {
+  background: #121212 !important; /* Force true deep dark velvet canvas */
+  border-top: 1px solid rgba(234, 178, 107, 0.2) !important; /* Premium gold accent border */
+  padding: 5rem 1.5rem 3rem !important; /* Adds clear spacing around columns */
+}
+
+/* Fix main brand title size and color */
+.footer-brand-name {
+  color: #FFF9D4 !important; /* Clear Mystery Parchment */
+  font-size: 1.8rem !important; /* Bumps up brand heading title size */
+  font-weight: 700 !important;
+  margin-bottom: 1.2rem !important;
+}
+.footer-brand-name em {
+  color: #EAB26B !important; /* Golden Ochre accent text */
+}
+
+/* Fix small description block visibility and size */
+.footer-brand-desc {
+  color: #FFF9D4 !important; /* Clear Mystery Parchment */
+  opacity: 0.85 !important; /* Crisp high contrast brightness */
+  font-size: 0.88rem !important; /* Visibly larger than original faint text sizing */
+  line-height: 1.8 !important;
+  max-width: 340px !important;
+}
+
+/* Fix column heading text blocks ("Shop", "Info") */
+.footer-col h4 {
+  color: #EAB26B !important; /* Golden Ochre */
+  font-size: 0.9rem !important; /* Makes structural section tags clear */
+  font-weight: 700 !important;
+  letter-spacing: 0.15em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Fix individual navigation list links */
+.footer-links {
+  gap: 0.9rem !important; /* Spaces out link rows vertically so they are easy to touch */
+}
+.footer-links a {
+  color: #FFF9D4 !important; 
+  font-size: 0.88rem !important; /* Increases target reading text sizes */
+  opacity: 0.8 !important; 
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+}
+.footer-links a:hover {
+  color: #EAB26B !important; /* Hover effect glows to premium warm gold */
+  opacity: 1 !important;
+}
+
+/* Fix bottom copyright metadata text block */
+.footer-bottom {
+  border-top: 1px solid rgba(234, 178, 107, 0.1) !important;
+  margin-top: 3rem !important;
+  padding-top: 1.5rem !important;
+  color: #FFF9D4 !important;
+  opacity: 0.6 !important;
+  font-size: 0.78rem !important; /* Clears small legal print lines */
+}
+
+/* Mobile responsive layout safety formatting */
+@media (max-width: 900px) {
+  .footer-top {
+    grid-template-columns: 1fr !important; /* Stacks column grids beautifully on mobile profiles */
+    gap: 2.5rem !important;
+  }
+  .footer-brand-desc {
+    max-width: 100% !important;
+  }
+}
