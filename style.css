@@ -1747,3 +1747,58 @@ footer {
 .directory-card:nth-child(2), .product-card:nth-child(2) { transition-delay: 0.1s !important; }
 .directory-card:nth-child(3), .product-card:nth-child(3) { transition-delay: 0.2s !important; }
 .directory-card:nth-child(4) { transition-delay: 0.3s !important; }
+
+/* ── FULFILMENT MODES RICH GARNET OVERRIDE ── */
+#modes {
+  background: #6E0000 !important; /* Rich Rohossho Garnet mystery canvas */
+  border-top: 1px solid rgba(234, 178, 107, 0.2) !important;
+  border-bottom: 1px solid rgba(234, 178, 107, 0.2) !important;
+  color: #FFF9D4 !important; /* Primary text maps cleanly to Mystery Parchment */
+}
+
+/* 1. Style Left Column Text blocks */
+.modes-left .section-label {
+  color: #EAB26B !important; /* Toasted Ochre secondary warmth accent */
+}
+
+.modes-left .section-title {
+  color: #FFF9D4 !important; /* Mystery Parchment */
+}
+
+.modes-left .section-title em {
+  color: #EAB26B !important; /* Toasted Ochre warm gold italic pop */
+}
+
+.modes-left p {
+  color: #FFF9D4 !important;
+  opacity: 0.8 !important; /* Soft, highly readable contrast spacing */
+}
+
+/* 2. Style Right Column Cards */
+.modes-right .mode-card {
+  background: rgba(26, 13, 10, 0.4) !important; /* Translucent smoky bark overlay */
+  border: 1px solid rgba(234, 178, 107, 0.2) !important; /* Subtle gold borders */
+  border-radius: 8px !important;
+}
+
+.modes-right .mode-card:hover {
+  background: rgba(26, 13, 10, 0.6) !important;
+  border-color: #EAB26B !important; /* Borders glow gold on interaction */
+}
+
+.modes-right .mode-card-label {
+  color: #EAB26B !important; /* Toasted Ochre tags */
+}
+
+.modes-right .mode-card-title {
+  color: #FFF9D4 !important; /* Mystery Parchment titles */
+}
+
+.modes-right .mode-card-desc {
+  color: #FFF9D4 !important;
+  opacity: 0.85 !important;
+}
+
+.modes-right .mode-icon {
+  opacity: 0.8 !important; /* Brightens emojis slightly against the garnet canvas */
+}
