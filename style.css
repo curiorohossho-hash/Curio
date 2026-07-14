@@ -1805,3 +1805,208 @@ footer {
 .modes-right .mode-icon {
   opacity: 0.8 !important; /* Brightens emojis slightly against the garnet canvas */
 }
+
+/* ── PREMIUM CINEMATIC HERO OVERHAUL ── */
+#hero-premium {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 6rem 4rem 6rem;
+  overflow: hidden;
+  background: #0d0605; /* Deep mysterious black-cherry base canvas */
+}
+
+/* Ambient Slow Motion Underlay Layout */
+.hero-video-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+.hero-video-bg video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.16; /* Soft textures that enhance text readability without distraction */
+  filter: grayscale(30%) contrast(115%);
+}
+.hero-overlay-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 65%, var(--warm-white) 100%),
+              radial-gradient(circle at 25% 30%, transparent 0%, #0d0605 85%);
+  z-index: 2;
+}
+
+.hero-content-wrapper {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  max-width: 1300px;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.hero-left-cinematic {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: premiumFadeInUp 1.2s cubic-bezier(0.215, 0.610, 0.355, 1) forwards;
+}
+
+/* Premium Glow Action Elements */
+.btn-primary-glow {
+  background: var(--amber);
+  color: #121212;
+  padding: 1rem 2.5rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  font-weight: 700;
+  transition: all 0.4s ease;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(234, 178, 107, 0.15);
+}
+.btn-primary-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(234, 178, 107, 0.4);
+  background: #FFF9D4;
+}
+
+.btn-outline-glow {
+  background: rgba(255, 249, 212, 0.03);
+  color: var(--ink);
+  padding: 1rem 2.5rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 249, 212, 0.3);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.4s ease;
+  border-radius: 4px;
+}
+.btn-outline-glow:hover {
+  background: rgba(255, 249, 212, 0.1);
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+/* Glassmorphic Active Panel Layout */
+.hero-right-cinematic {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  min-height: 520px;
+  opacity: 0;
+  transform: scale(0.96);
+  animation: premiumFadeInUp 1.4s cubic-bezier(0.215, 0.610, 0.355, 1) 0.25s forwards;
+}
+
+.premium-showcase-box {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  height: 490px;
+  background: rgba(36, 20, 16, 0.45); /* Smoky translucent Curio Bark panel */
+  border: 1px solid rgba(234, 178, 107, 0.2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.showcase-video {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 249, 212, 0.04);
+}
+
+.showcase-footer-tiers {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.tier-pill {
+  flex: 1;
+  text-align: center;
+  font-size: 0.65rem;
+  padding: 0.65rem 0.2rem;
+  background: rgba(18, 18, 18, 0.7);
+  border: 1px solid rgba(234, 178, 107, 0.1);
+  color: var(--ink);
+  border-radius: 6px;
+}
+.tier-pill.highlight {
+  border-color: var(--amber);
+  background: rgba(234, 178, 107, 0.12);
+  color: var(--amber);
+  font-weight: 500;
+}
+
+/* Dynamic State Control Overrides */
+.standard-static-fallback {
+  display: none; /* Hidden on broadband networks */
+  position: absolute;
+}
+
+.video-failed .premium-showcase-box {
+  display: none !important;
+}
+
+.video-failed .standard-static-fallback {
+  display: block !important;
+  position: relative;
+  opacity: 1;
+  transform: scale(1);
+}
+
+@keyframes premiumFadeInUp {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Phone Alignment Adaptations */
+@media (max-width: 900px) {
+  #hero-premium {
+    padding: 100px 1.5rem 4rem 1.5rem;
+    min-height: auto;
+  }
+  .hero-content-wrapper {
+    grid-template-columns: 1fr;
+    gap: 3.5rem;
+  }
+  .hero-right-cinematic {
+    min-height: auto;
+  }
+  .premium-showcase-box {
+    height: 410px;
+    max-width: 100%;
+  }
+  .showcase-video {
+    height: 280px;
+  }
+}
+

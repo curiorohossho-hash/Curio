@@ -59,41 +59,79 @@
     </div>
   </div>
 
-  <section id="hero">
-    <div class="hero-left">
-      <div class="hero-eyebrow">✦ Dhaka's Mystery Box Brand ✦</div>
-      <h1 class="hero-title">Unbox the<br><em>Unexpected.</em></h1>
-      <div class="hero-bengali">প্রতিটি বাক্সে লুকিয়ে আছে এক রহস্য</div>
-      <p class="hero-desc">Curated mystery boxes for girls who love surprises. Every box is a new story — packed with accessories, stationery, lifestyle finds, and things you didn't know you needed.</p>
-      <div class="hero-ctas">
-        <a href="products.html" class="btn-primary">Shop Boxes</a>
-        <a href="#how" class="btn-outline">How It Works</a>
-      </div>
+  <section id="hero-premium">
+    <!-- Ambient Cinematic Background Motion Canvas -->
+    <div class="hero-video-bg">
+      <video autoplay loop muted playsinline id="heroAmbientVideo">
+        <source src="your-cinematic-ambient-loop.mp4" type="video/mp4">
+      </video>
+      <div class="hero-overlay-shimmer"></div>
     </div>
-    <div class="hero-right">
-      <div class="hero-bg-circle"></div>
-      <div class="hero-visual">
-        <div class="box-card box-card-1">
-          <!-- Premium Gold Box Icon -->
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#EAB26B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.8rem;"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
-          <div class="box-label">Small Box</div>
-          <div class="box-price">৳499</div>
+
+    <div class="hero-content-wrapper">
+      <!-- Left Column Typography Panel -->
+      <div class="hero-left-cinematic">
+        <div class="hero-eyebrow">✦ Dhaka's Mystery Box Brand ✦</div>
+        <h1 class="hero-title">Unbox the<br><em>Unexpected.</em></h1>
+        <div class="hero-bengali">প্রতিটি বাক্সে লুকিয়ে আছে এক রহস্য</div>
+        <p class="hero-desc">Curated mystery boxes for girls who love surprises. Every box is a new story — packed with accessories, stationery, lifestyle finds, and things you didn't know you needed.</p>
+        <div class="hero-ctas">
+          <a href="products.html" class="btn-primary-glow">Shop Boxes</a>
+          <a href="#how" class="btn-outline-glow">How It Works</a>
         </div>
-        <div class="box-card box-card-2">
-          <!-- Premium Gold Spark Icon -->
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#EAB26B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.8rem;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></svg>
-          <div class="box-label">Classic Box</div>
-          <div class="box-price">৳799</div>
+      </div>
+      
+      <!-- Right Column Visual Container Interface -->
+      <div class="hero-right-cinematic">
+        <!-- Glassmorphic Unboxing Showcase Frame (Active on premium playback speeds) -->
+        <div class="premium-showcase-box" id="premiumShowcaseBox">
+          <div class="showcase-inner-glow"></div>
+          <div class="box-floating-visual">
+            <video autoplay loop muted playsinline class="showcase-video" id="heroShowcaseVideo">
+              <source src="box-reveal-animation.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="showcase-footer-tiers">
+            <div class="tier-pill">Small ৳499</div>
+            <div class="tier-pill highlight">Classic ৳799</div>
+            <div class="tier-pill">Mega ৳1,199</div>
+          </div>
         </div>
-        <div class="box-card box-card-3">
-          <!-- Premium Gold Sparkles Icon -->
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#EAB26B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.8rem;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/><path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5Z"/><path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1Z"/></svg>
-          <div class="box-label">Mega Box</div>
-          <div class="box-price">৳1,199</div>
+
+        <!-- EXACT ORIGINAL THREE-CARD STATIC FALLBACK (Triggers automatically if data-saver blocks videos) -->
+        <div class="hero-visual standard-static-fallback" id="staticHeroFallback">
+          <div class="box-card box-card-1">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#EAB26B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.8rem;"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+            <div class="box-label">Small Box</div>
+            <div class="box-price">৳499</div>
+          </div>
+          <div class="box-card box-card-2">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#EAB26B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.8rem;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></svg>
+            <div class="box-label">Classic Box</div>
+            <div class="box-price">৳799</div>
+          </div>
+          <div class="box-card box-card-3">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#EAB26B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.8rem;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/><path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5Z"/><path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1Z"/></svg>
+            <div class="box-label">Mega Box</div>
+            <div class="box-price">৳1,199</div>
+          </div>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- AUTO-PLAY TRACKING INJECTOR Script (Place right at the bottom before closing </body> tag) -->
+  <script>
+    window.addEventListener('load', () => {
+      const showcaseVid = document.getElementById('heroShowcaseVideo');
+      if (showcaseVid) {
+        showcaseVid.play().catch((error) => {
+          console.warn("Media download rate capped or Data-Saver enabled. Restoring fallback visual structure safely.");
+          document.querySelector('.hero-right-cinematic').classList.add('video-failed');
+        });
+      }
+    });
+  </script>
 
   <div class="ticker">
     <div class="ticker-inner">
