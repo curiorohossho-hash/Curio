@@ -2010,3 +2010,25 @@ footer {
   }
 }
 
+/* ── EQUAL SQUARE PRODUCT CONTAINERS WITH PARCHMENT FILL ── */
+.product-img,
+.indiv-img {
+  width: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  height: auto !important;
+  background-color: #FFF9D4 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Ensure images fit completely without cropping */
+.product-img img,
+.indiv-img img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  background-color: #FFF9D4 !important;
+}

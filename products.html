@@ -221,9 +221,10 @@ async function fetchAndRenderCatalog() {
       const esc = s => escapeHtml(s || '');
       const hasImage = product.image_url && product.image_url.trim() !== '';
 
-      const imageHtml = hasImage
-        ? `<img src="${escapeHtml(product.image_url.trim())}" alt="${esc(product.name)}" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0; z-index:1;">`
-        : `<div class="product-img-emoji" style="position:relative; z-index:2;">${escapeHtml(product.emoji || '🎁')}</div>`;
+      // AFTER:
+const imageHtml = hasImage
+  ? `<img src="${escapeHtml(product.image_url.trim())}" alt="${esc(product.name)}" style="width:100%; height:100%; object-fit:contain; background-color:#FFF9D4; position:absolute; inset:0; z-index:1;">`
+  : `<div class="product-img-emoji" style="position:relative; z-index:2;">${escapeHtml(product.emoji || '🎁')}</div>`;
 
       const discountBadge = product.old_price ? `<span class="price-badge">30% OFF</span>` : '';
       const isItemAvailable = product.in_stock === true || product.in_stock === 'true' || product.in_stock == 1;
