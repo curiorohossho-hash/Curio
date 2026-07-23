@@ -202,12 +202,20 @@ async function fetchAndRenderCatalog() {
   }
 
   try {
-    const { data: fetchedProducts, error } = await _supabaseClient
+   const { data: fetchedProducts, error } = await _supabaseClient
       .from('products')
       .select('*')
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
+
+    // Put In-Stock items first (Batch 2 newest on top), Out-of-Stock items at the very bottom
+    fetchedProducts.sort((a, b) => {
+      const aInStock = a.in_stock === true || a.in_stock === 'true' || a.in_stock == 1;
+      const bInStock = b.in_stock === true || b.in_stock === 'true' || b.in_stock == 1;
+      if (aInStock === bInStock) return 0;
+      return aInStock ? -1 : 1;
+    });
 
     const boxesGrid = document.getElementById('boxesGrid');
     const signatureGrid = document.querySelector('#signature .products-grid');
